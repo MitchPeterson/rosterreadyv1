@@ -65,6 +65,40 @@
             background: linear-gradient(135deg, var(--primary-red), #C1121F); cursor: pointer;
             box-shadow: 0 2px 8px rgba(230,57,70,0.4);
         }
+        
+        /* Station Template Cards */
+        .station-template-card {
+            background: white; border: 2px solid var(--border-light); border-radius: 12px;
+            padding: 20px; margin-bottom: 16px; transition: all 0.3s;
+        }
+        .station-template-card:hover {
+            border-color: var(--light-blue); box-shadow: 0 4px 12px rgba(74,144,226,0.15);
+        }
+        .station-details {
+            margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border-light);
+        }
+        
+        /* Toggle Switch */
+        .toggle-switch {
+            position: relative; display: inline-block; width: 50px; height: 26px;
+        }
+        .toggle-switch input {
+            opacity: 0; width: 0; height: 0;
+        }
+        .toggle-slider {
+            position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #ccc; transition: .4s; border-radius: 26px;
+        }
+        .toggle-slider:before {
+            position: absolute; content: ""; height: 20px; width: 20px; left: 3px; bottom: 3px;
+            background-color: white; transition: .4s; border-radius: 50%;
+        }
+        input:checked + .toggle-slider {
+            background: linear-gradient(135deg, var(--primary-red), #C1121F);
+        }
+        input:checked + .toggle-slider:before {
+            transform: translateX(24px);
+        }
     </style>
 </head>
 <body>
@@ -80,6 +114,7 @@
     <div class="content">
         <div class="tabs">
             <button class="tab active" onclick="switchTab('setup')">Setup</button>
+            <button class="tab" onclick="switchTab('stationConfig')">Station Configuration</button>
             <button class="tab" onclick="switchTab('stations')">Stations</button>
             <button class="tab" onclick="switchTab('players')">Players</button>
             <button class="tab" onclick="switchTab('messaging')">Messaging</button>
@@ -181,7 +216,334 @@
             </div>
         </div>
 
-        <!-- Stations Tab -->
+        <!-- Station Configuration Tab -->
+        <div id="stationConfigContent" class="tab-content">
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h3 class="card-title" style="margin: 0;">Station Configuration</h3>
+                    <button style="padding: 10px 20px; background: var(--accent-purple); color: white; border: none; border-radius: 8px; font-weight: 600; font-family: Georgia, serif; cursor: pointer;" onclick="openRubricEditor()">
+                        Edit Rubrics & Criteria
+                    </button>
+                </div>
+                
+                <!-- Sport Selection -->
+                <div style="margin-bottom: 24px;">
+                    <label style="display: block; font-size: 14px; font-weight: 600; margin-bottom: 8px;">Sport Type</label>
+                    <div style="display: flex; gap: 12px;">
+                        <label style="display: flex; align-items: center; gap: 8px; padding: 12px 20px; background: var(--off-white); border: 2px solid var(--primary-red); border-radius: 8px; cursor: pointer;">
+                            <input type="radio" name="sport" value="softball" checked onchange="updateSportView()">
+                            <span style="font-weight: 600;">Softball</span>
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 8px; padding: 12px 20px; background: var(--off-white); border: 2px solid var(--border-light); border-radius: 8px; cursor: pointer;">
+                            <input type="radio" name="sport" value="baseball" onchange="updateSportView()">
+                            <span style="font-weight: 600;">Baseball</span>
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 8px; padding: 12px 20px; background: var(--off-white); border: 2px solid var(--border-light); border-radius: 8px; cursor: pointer;">
+                            <input type="radio" name="sport" value="both" onchange="updateSportView()">
+                            <span style="font-weight: 600;">Both</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Aggregation Settings -->
+                <div style="margin-bottom: 24px; background: rgba(26,188,156,0.05); padding: 16px; border-radius: 12px; border-left: 4px solid var(--accent-teal);">
+                    <h4 style="font-weight: 700; margin-bottom: 12px;">Scoring Aggregation Rules</h4>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div>
+                            <label style="display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px;">Across Evaluators:</label>
+                            <select style="width: 100%; padding: 10px; border: 2px solid var(--border-light); border-radius: 8px; font-family: Georgia, serif;">
+                                <option selected>Median (Recommended)</option>
+                                <option>Average (Rounded)</option>
+                                <option>Sum with Normalization</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px;">Across Stations:</label>
+                            <select style="width: 100%; padding: 10px; border: 2px solid var(--border-light); border-radius: 8px; font-family: Georgia, serif;">
+                                <option selected>Equal Weight (Recommended)</option>
+                                <option>Custom Weights</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <p style="background: var(--off-white); padding: 16px; border-radius: 12px; margin-bottom: 24px; color: var(--text-medium);">
+                    Configure which stations are active for each age group. Stations will use age-appropriate rubrics and drills automatically.
+                </p>
+
+                <!-- Age Group Selector -->
+                <div style="margin-bottom: 24px;">
+                    <label style="display: block; font-size: 14px; font-weight: 600; margin-bottom: 8px;">Select Age Group</label>
+                    <div class="btn-grid">
+                        <div class="btn-option selected" onclick="selectAgeGroup(this, '8U-10U')">8U-10U</div>
+                        <div class="btn-option" onclick="selectAgeGroup(this, '11U-12U')">11U-12U</div>
+                        <div class="btn-option" onclick="selectAgeGroup(this, '13U-14U')">13U-14U</div>
+                        <div class="btn-option" onclick="selectAgeGroup(this, '15U-18U')">15U-18U</div>
+                    </div>
+                </div>
+
+                <!-- Station Templates -->
+                <div id="stationTemplates">
+                    <h4 style="font-weight: 700; margin-bottom: 16px; color: var(--text-dark);">Available Station Templates</h4>
+                    
+                    <!-- Hitting Station -->
+                    <div class="station-template-card">
+                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 12px;">
+                            <div>
+                                <h5 style="font-size: 16px; font-weight: 700; margin-bottom: 4px;">⚾ Hitting</h5>
+                                <div style="font-size: 13px; color: var(--text-medium);">Sport: Softball & Baseball</div>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" checked onchange="toggleStation(this, 'hitting')">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                        <div class="station-details" id="hitting-details">
+                            <div style="background: var(--off-white); padding: 12px; border-radius: 8px; margin-bottom: 12px;">
+                                <div style="font-weight: 600; font-size: 13px; margin-bottom: 8px;">Drills for 8U-10U:</div>
+                                <div style="font-size: 13px; color: var(--text-medium);">
+                                    <label style="display: block; margin-bottom: 4px;">
+                                        <input type="checkbox" checked> Tee (6 swings)
+                                    </label>
+                                    <label style="display: block; margin-bottom: 4px;">
+                                        <input type="checkbox" checked> Front Toss (8 swings)
+                                    </label>
+                                    <label style="display: block;">
+                                        <input type="checkbox"> Machine (10 swings)
+                                    </label>
+                                </div>
+                            </div>
+                            <div style="font-size: 13px; color: var(--text-medium); margin-bottom: 8px;">
+                                <strong>Criteria (1-10):</strong> Swing Mechanics, Contact Quality, Power
+                            </div>
+                            <div style="font-size: 13px; color: var(--text-medium);">
+                                <strong>Evaluators Required:</strong> 
+                                <select style="margin-left: 8px; padding: 4px 8px; border: 1px solid var(--border-light); border-radius: 4px; font-family: Georgia, serif;">
+                                    <option>1</option>
+                                    <option selected>2</option>
+                                    <option>3</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Infield Station -->
+                    <div class="station-template-card">
+                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 12px;">
+                            <div>
+                                <h5 style="font-size: 16px; font-weight: 700; margin-bottom: 4px;">🧤 Infield</h5>
+                                <div style="font-size: 13px; color: var(--text-medium);">Sport: Softball & Baseball</div>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" checked onchange="toggleStation(this, 'infield')">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                        <div class="station-details" id="infield-details">
+                            <div style="background: var(--off-white); padding: 12px; border-radius: 8px; margin-bottom: 12px;">
+                                <div style="font-weight: 600; font-size: 13px; margin-bottom: 8px;">Drills for 8U-10U:</div>
+                                <div style="font-size: 13px; color: var(--text-medium);">
+                                    Ground balls (6-8 reps): Forehand, Backhand, Middle
+                                </div>
+                            </div>
+                            <div style="font-size: 13px; color: var(--text-medium); margin-bottom: 8px;">
+                                <strong>Criteria (1-10):</strong> Fielding Mechanics, Footwork, Throw Accuracy, Arm Strength
+                            </div>
+                            <div style="font-size: 13px; color: var(--text-medium);">
+                                <strong>Evaluators Required:</strong> 
+                                <select style="margin-left: 8px; padding: 4px 8px; border: 1px solid var(--border-light); border-radius: 4px; font-family: Georgia, serif;">
+                                    <option>1</option>
+                                    <option selected>2</option>
+                                    <option>3</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Outfield Station -->
+                    <div class="station-template-card">
+                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 12px;">
+                            <div>
+                                <h5 style="font-size: 16px; font-weight: 700; margin-bottom: 4px;">🥎 Outfield</h5>
+                                <div style="font-size: 13px; color: var(--text-medium);">Sport: Softball & Baseball</div>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" checked onchange="toggleStation(this, 'outfield')">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                        <div class="station-details" id="outfield-details">
+                            <div style="background: var(--off-white); padding: 12px; border-radius: 8px; margin-bottom: 12px;">
+                                <div style="font-weight: 600; font-size: 13px; margin-bottom: 8px;">Drills for 8U-10U:</div>
+                                <div style="font-size: 13px; color: var(--text-medium);">
+                                    Fly balls (6 reps + 2 throws): Routine catches, basic routes
+                                </div>
+                            </div>
+                            <div style="font-size: 13px; color: var(--text-medium); margin-bottom: 8px;">
+                                <strong>Criteria (1-10):</strong> Catching Ability, Routes/Mechanics, Throw Accuracy, Arm Strength
+                            </div>
+                            <div style="font-size: 13px; color: var(--text-medium);">
+                                <strong>Evaluators Required:</strong> 
+                                <select style="margin-left: 8px; padding: 4px 8px; border: 1px solid var(--border-light); border-radius: 4px; font-family: Georgia, serif;">
+                                    <option>1</option>
+                                    <option selected>2</option>
+                                    <option>3</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Pitching Station -->
+                    <div class="station-template-card">
+                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 12px;">
+                            <div>
+                                <h5 style="font-size: 16px; font-weight: 700; margin-bottom: 4px;">⚡ Pitching</h5>
+                                <div style="font-size: 13px; color: var(--text-medium);">Sport: Softball & Baseball</div>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" onchange="toggleStation(this, 'pitching')">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                        <div class="station-details" id="pitching-details" style="display: none;">
+                            <div style="background: rgba(230, 57, 70, 0.05); padding: 12px; border-radius: 8px; margin-bottom: 12px; border-left: 3px solid var(--primary-red);">
+                                <div style="font-weight: 700; font-size: 13px; margin-bottom: 4px; color: var(--primary-red);">⚠️ Age-Appropriate Pitch Mix</div>
+                                <div style="font-size: 12px; color: var(--text-medium);">
+                                    Pitch types are automatically limited based on age group for player safety and development
+                                </div>
+                            </div>
+                            <div style="background: var(--off-white); padding: 12px; border-radius: 8px; margin-bottom: 12px;">
+                                <div style="font-weight: 600; font-size: 13px; margin-bottom: 8px;">Pitch Mix for 8U-10U:</div>
+                                <div style="font-size: 13px; color: var(--text-medium);">
+                                    <strong>Softball:</strong> Fastball only, basic control (10 pitches)<br>
+                                    <strong>Baseball:</strong> Fastball only, basic control (10 pitches)
+                                </div>
+                            </div>
+                            <div style="background: var(--off-white); padding: 12px; border-radius: 8px; margin-bottom: 12px;">
+                                <div style="font-weight: 600; font-size: 13px; margin-bottom: 8px;">Pitch Mix for 11U-12U:</div>
+                                <div style="font-size: 13px; color: var(--text-medium);">
+                                    <strong>Softball:</strong> Fastball + Change-up (8 fastballs + 4 change)<br>
+                                    <strong>Baseball:</strong> Fastball + Change-up (8 fastballs + 4 change)
+                                </div>
+                            </div>
+                            <div style="background: var(--off-white); padding: 12px; border-radius: 8px; margin-bottom: 12px;">
+                                <div style="font-weight: 600; font-size: 13px; margin-bottom: 8px;">Pitch Mix for 13U-14U:</div>
+                                <div style="font-size: 13px; color: var(--text-medium);">
+                                    <strong>Softball:</strong> Add movement pitch (drop/curve) if used<br>
+                                    <strong>Baseball:</strong> Add breaking ball (consult local rules/health policy)
+                                </div>
+                            </div>
+                            <div style="background: var(--off-white); padding: 12px; border-radius: 8px; margin-bottom: 12px;">
+                                <div style="font-weight: 600; font-size: 13px; margin-bottom: 8px;">Pitch Mix for 15U-18U:</div>
+                                <div style="font-size: 13px; color: var(--text-medium);">
+                                    <strong>Softball:</strong> Full mix with sequencing evaluation<br>
+                                    <strong>Baseball:</strong> Full repertoire with pitchability assessment
+                                </div>
+                            </div>
+                            <div style="font-size: 13px; color: var(--text-medium); margin-bottom: 8px;">
+                                <strong>Criteria (1-10):</strong> Velocity (age-relative), Accuracy/Command, Pitch Mix
+                            </div>
+                            <div style="font-size: 13px; color: var(--text-medium); margin-bottom: 8px;">
+                                <label style="display: flex; align-items: center; gap: 8px;">
+                                    <input type="checkbox">
+                                    <strong>Enable Radar Gun Integration (future feature)</strong>
+                                </label>
+                            </div>
+                            <div style="font-size: 13px; color: var(--text-medium);">
+                                <strong>Evaluators Required:</strong> 
+                                <select style="margin-left: 8px; padding: 4px 8px; border: 1px solid var(--border-light); border-radius: 4px; font-family: Georgia, serif;">
+                                    <option>1</option>
+                                    <option selected>2</option>
+                                    <option>3</option>
+                                </select>
+                                <span style="margin-left: 12px; font-size: 12px; color: var(--text-medium);">(2 recommended to reduce variance)</span>
+                            </div>
+                        </div>
+                                <div style="font-size: 13px; color: var(--text-medium);">
+                                    10-12 pitches: Fastball focus, basic control
+                                </div>
+                            </div>
+                            <div style="font-size: 13px; color: var(--text-medium); margin-bottom: 8px;">
+                                <strong>Criteria (1-10):</strong> Velocity (age-relative), Accuracy/Command, Pitch Mix
+                            </div>
+                            <div style="font-size: 13px; color: var(--text-medium);">
+                                <strong>Evaluators Required:</strong> 
+                                <select style="margin-left: 8px; padding: 4px 8px; border: 1px solid var(--border-light); border-radius: 4px; font-family: Georgia, serif;">
+                                    <option>1</option>
+                                    <option selected>2</option>
+                                    <option>3</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Base Running Station -->
+                    <div class="station-template-card">
+                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 12px;">
+                            <div>
+                                <h5 style="font-size: 16px; font-weight: 700; margin-bottom: 4px;">🏃 Base Running</h5>
+                                <div style="font-size: 13px; color: var(--text-medium);">Sport: Softball & Baseball</div>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" checked onchange="toggleStation(this, 'baserunning')">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                        <div class="station-details" id="baserunning-details">
+                            <div style="background: var(--off-white); padding: 12px; border-radius: 8px; margin-bottom: 12px;">
+                                <div style="font-weight: 600; font-size: 13px; margin-bottom: 8px;">Drills for 8U-10U:</div>
+                                <div style="font-size: 13px; color: var(--text-medium);">
+                                    Home to 1st, rounding bases, basic slides
+                                </div>
+                            </div>
+                            <div style="font-size: 13px; color: var(--text-medium); margin-bottom: 8px;">
+                                <strong>Criteria (1-10):</strong> Speed, Technique, Decision Making
+                            </div>
+                            <div style="font-size: 13px; color: var(--text-medium);">
+                                <strong>Evaluators Required:</strong> 
+                                <select style="margin-left: 8px; padding: 4px 8px; border: 1px solid var(--border-light); border-radius: 4px; font-family: Georgia, serif;">
+                                    <option selected>1</option>
+                                    <option>2</option>
+                                    <option>3</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Aggregation Settings -->
+                <div class="card" style="border-top-color: var(--accent-purple); margin-top: 24px;">
+                    <h4 style="font-weight: 700; margin-bottom: 16px;">Scoring Aggregation Rules</h4>
+                    <div style="background: var(--off-white); padding: 20px; border-radius: 12px; margin-bottom: 16px;">
+                        <div style="margin-bottom: 20px;">
+                            <label style="display: block; font-weight: 600; margin-bottom: 8px;">Across Evaluators (per station):</label>
+                            <select style="width: 100%; padding: 12px; border: 2px solid var(--border-light); border-radius: 8px; font-family: Georgia, serif;">
+                                <option value="median" selected>Median (Recommended - Reduces outlier impact)</option>
+                                <option value="average">Average (Rounded to whole number)</option>
+                                <option value="sum">Sum with normalization</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="display: block; font-weight: 600; margin-bottom: 8px;">Across Stations (overall score):</label>
+                            <select style="width: 100%; padding: 12px; border: 2px solid var(--border-light); border-radius: 8px; font-family: Georgia, serif;">
+                                <option value="equal" selected>Equal Weight (Recommended default)</option>
+                                <option value="weighted">Weighted by station importance</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div style="background: rgba(74,144,226,0.1); padding: 16px; border-radius: 12px; border-left: 4px solid var(--light-blue); font-size: 14px; color: var(--text-medium);">
+                        <strong>Note:</strong> All scores shown to parents/players will be whole numbers (1-10). The system uses your selected aggregation method but always rounds to integers for display.
+                    </div>
+                </div>
+
+                <!-- Save Button -->
+                <button style="width: 100%; padding: 14px; background: linear-gradient(135deg, var(--primary-red), #C1121F); color: white; border: none; border-radius: 12px; font-weight: 600; font-size: 16px; font-family: Georgia, serif; cursor: pointer; margin-top: 24px;" onclick="saveStationConfig()">
+                    Save Station Configuration
+                </button>
+            </div>
+        </div>
+
+        <!-- Stations Tab (Original) -->
         <div id="stationsContent" class="tab-content">
             <div class="card">
                 <h3 class="card-title">Station Management</h3>
@@ -332,6 +694,117 @@
             setTimeout(() => {
                 document.getElementById('recommendationsCard').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
             }, 100);
+        }
+
+        // Station Configuration Functions
+        function selectAgeGroup(element, ageGroup) {
+            // Update selected state
+            element.parentElement.querySelectorAll('.btn-option').forEach(b => b.classList.remove('selected'));
+            element.classList.add('selected');
+            
+            // Update station details to show age-appropriate drills
+            updateStationDetailsForAge(ageGroup);
+        }
+
+        function updateStationDetailsForAge(ageGroup) {
+            // Update hitting drills based on age
+            const hittingDrills = document.querySelector('#hitting-details');
+            if (hittingDrills) {
+                let drillsHTML = '';
+                if (ageGroup === '8U-10U') {
+                    drillsHTML = `
+                        <div style="font-weight: 600; font-size: 13px; margin-bottom: 8px;">Drills for ${ageGroup}:</div>
+                        <div style="font-size: 13px; color: var(--text-medium);">
+                            <label style="display: block; margin-bottom: 4px;">
+                                <input type="checkbox" checked> Tee (6 swings)
+                            </label>
+                            <label style="display: block; margin-bottom: 4px;">
+                                <input type="checkbox" checked> Front Toss (8 swings)
+                            </label>
+                            <label style="display: block;">
+                                <input type="checkbox"> Machine (10 swings) - Optional
+                            </label>
+                        </div>
+                    `;
+                } else if (ageGroup === '11U-12U') {
+                    drillsHTML = `
+                        <div style="font-weight: 600; font-size: 13px; margin-bottom: 8px;">Drills for ${ageGroup}:</div>
+                        <div style="font-size: 13px; color: var(--text-medium);">
+                            <label style="display: block; margin-bottom: 4px;">
+                                <input type="checkbox" checked> Tee (6 swings)
+                            </label>
+                            <label style="display: block; margin-bottom: 4px;">
+                                <input type="checkbox" checked> Front Toss (8 swings)
+                            </label>
+                            <label style="display: block;">
+                                <input type="checkbox" checked> Machine (10 swings)
+                            </label>
+                        </div>
+                    `;
+                } else {
+                    drillsHTML = `
+                        <div style="font-weight: 600; font-size: 13px; margin-bottom: 8px;">Drills for ${ageGroup}:</div>
+                        <div style="font-size: 13px; color: var(--text-medium);">
+                            <label style="display: block; margin-bottom: 4px;">
+                                <input type="checkbox" checked> Tee (6 swings)
+                            </label>
+                            <label style="display: block; margin-bottom: 4px;">
+                                <input type="checkbox" checked> Front Toss (8 swings)
+                            </label>
+                            <label style="display: block; margin-bottom: 4px;">
+                                <input type="checkbox" checked> Machine (10 swings)
+                            </label>
+                            <label style="display: block;">
+                                <input type="checkbox"> Live Pitching (optional for 15U-18U)
+                            </label>
+                        </div>
+                    `;
+                }
+                
+                const drillsContainer = hittingDrills.querySelector('div[style*="background: var(--off-white)"]');
+                if (drillsContainer) {
+                    drillsContainer.innerHTML = drillsHTML;
+                }
+            }
+        }
+
+        function toggleStation(checkbox, stationName) {
+            const details = document.getElementById(stationName + '-details');
+            if (details) {
+                details.style.display = checkbox.checked ? 'block' : 'none';
+            }
+        }
+
+        function updateSportView() {
+            const sport = document.querySelector('input[name="sport"]:checked').value;
+            console.log('Sport updated to:', sport);
+            // You can add logic here to show/hide sport-specific stations
+            // For example, certain pitching rules might differ between softball and baseball
+        }
+
+        function openRubricEditor() {
+            alert(`Rubric Editor Coming Soon!\n\nThis will allow you to:\n• Edit criteria scoring rubrics (1/5/10 anchors)\n• Define age-specific complexity\n• Add evaluator instructions\n• Version track all changes\n\nFor now, stations use default rubrics.`);
+        }
+
+        function saveStationConfig() {
+            // Get configuration data
+            const sport = document.querySelector('input[name="sport"]:checked').value;
+            const ageGroup = document.querySelector('#stationConfigContent .btn-option.selected')?.textContent || '8U-10U';
+            const evaluatorMethod = document.querySelector('select option[value="median"]')?.parentElement.value || 'median';
+            const stationMethod = document.querySelector('select option[value="equal"]')?.parentElement.value || 'equal';
+            
+            // Count enabled stations
+            const enabledStations = [];
+            document.querySelectorAll('.station-template-card input[type="checkbox"]').forEach((cb, index) => {
+                if (cb.checked && cb.onchange?.toString().includes('toggleStation')) {
+                    const card = cb.closest('.station-template-card');
+                    const stationName = card.querySelector('h5').textContent.trim();
+                    enabledStations.push(stationName);
+                }
+            });
+            
+            // Show confirmation
+            alert(`✓ Station Configuration Saved!\n\nSport: ${sport.charAt(0).toUpperCase() + sport.slice(1)}\nAge Group: ${ageGroup}\nEnabled Stations: ${enabledStations.length}\n\nAggregation:\n• Evaluators: ${evaluatorMethod}\n• Stations: ${stationMethod}\n\nYour station setup is ready for evaluation!`);
         }
     </script>
 </body>
