@@ -1,0 +1,1187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RosterReady - Complete Tryout Management System</title>
+    <style>
+        :root {
+            --primary-red: #E63946; --deep-red: #C1121F; --light-blue: #4A90E2;
+            --sky-blue: #357ABD; --accent-purple: #9B59B6; --accent-teal: #1ABC9C;
+            --accent-orange: #F39C12; --white: #FFFFFF; --off-white: #F8F9FA;
+            --text-dark: #2C3E50; --text-medium: #5A6C7D; --border-light: #E8EAF0;
+            --shadow: rgba(0, 0, 0, 0.1); --success-green: #27AE60; --warning-orange: #F39C12;
+            --gradient-primary: linear-gradient(135deg, #E63946, #C1121F);
+            --gradient-blue: linear-gradient(135deg, #4A90E2, #357ABD);
+            --gradient-purple: linear-gradient(135deg, #9B59B6, #8E44AD);
+            --gradient-teal: linear-gradient(135deg, #1ABC9C, #16A085);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: Georgia, 'Times New Roman', Times, serif;
+            background: linear-gradient(135deg, #F8F9FA 0%, #E8EEF5 100%);
+            color: var(--text-dark); min-height: 100vh; line-height: 1.6;
+        }
+        
+        h1, h2, h3, h4, h5, h6, .section-title, .card-title {
+            font-family: Georgia, 'Times New Roman', Times, serif;
+            font-weight: 700;
+        }
+        
+        button, .btn, input, select, textarea {
+            font-family: Georgia, 'Times New Roman', Times, serif;
+        }
+        
+        .view { display: none; }
+        .view.active { display: block; }
+        
+        /* Loading */
+        #loadingScreen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(135deg, #E63946 0%, #9B59B6 50%, #4A90E2 100%);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            z-index: 9999; transition: opacity 0.5s ease;
+        }
+        #loadingScreen.hidden { opacity: 0; pointer-events: none; }
+        .loading-logo {
+            width: 120px; height: 120px; background: white; border-radius: 24px;
+            display: flex; align-items: center; justify-content: center; margin-bottom: 32px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3); animation: pulse 2s ease-in-out infinite;
+        }
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+        .loading-logo svg { width: 64px; height: 64px; }
+        .loading-text { color: white; font-size: 32px; font-weight: 800; margin-bottom: 16px; }
+        .loading-subtext { color: rgba(255, 255, 255, 0.8); font-size: 16px; }
+        .loading-spinner {
+            width: 40px; height: 40px; border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white; border-radius: 50%; animation: spin 1s linear infinite; margin-top: 32px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Auth */
+        .auth-container {
+            background: white; border-radius: 24px; padding: 48px; max-width: 480px;
+            margin: 100px auto; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+        }
+        .auth-logo {
+            width: 72px; height: 72px; background: linear-gradient(135deg, var(--primary-red), var(--deep-red));
+            border-radius: 16px; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px;
+        }
+        .auth-logo svg { width: 40px; height: 40px; }
+        .auth-title { font-size: 28px; font-weight: 800; text-align: center; margin-bottom: 8px; }
+        .auth-subtitle { text-align: center; color: var(--text-medium); margin-bottom: 32px; font-size: 15px; }
+        .btn {
+            width: 100%; padding: 14px 24px; border: none; border-radius: 12px;
+            font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; font-family: 'Inter', sans-serif;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-red), var(--deep-red));
+            color: white; box-shadow: 0 4px 16px rgba(220, 20, 60, 0.3);
+        }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(220, 20, 60, 0.4); }
+
+        /* Dashboard Nav */
+        .top-nav {
+            background: white; border-radius: 20px; padding: 16px 32px; margin: 20px;
+            box-shadow: 0 4px 16px var(--shadow); display: flex; justify-content: space-between; align-items: center;
+        }
+        .nav-left { display: flex; align-items: center; gap: 16px; }
+        .back-btn, .btn-logout {
+            padding: 10px 20px; background: var(--off-white); border: 2px solid var(--border-light);
+            border-radius: 12px; font-weight: 600; cursor: pointer; font-size: 14px; transition: all 0.3s ease;
+        }
+        .back-btn:hover, .btn-logout:hover { border-color: var(--primary-red); color: var(--primary-red); }
+        .page-title { font-size: 20px; font-weight: 800; }
+
+        /* Org Grid */
+        .org-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; padding: 20px; }
+        .org-card {
+            background: white; border-radius: 20px; padding: 32px;
+            box-shadow: 0 4px 16px var(--shadow); transition: all 0.3s ease;
+        }
+        .org-card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12); }
+        .org-icon {
+            width: 64px; height: 64px; background: var(--gradient-purple);
+            border-radius: 16px; display: flex; align-items: center; justify-content: center;
+            margin-bottom: 20px; font-size: 28px; color: white; font-weight: 700;
+            box-shadow: 0 6px 16px rgba(155, 89, 182, 0.3);
+        }
+        .org-name { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
+        .org-meta { color: var(--text-medium); font-size: 14px; margin-bottom: 16px; }
+        .org-btn {
+            width: 100%; padding: 12px; background: var(--primary-red); color: white;
+            border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.3s ease;
+            font-family: 'Inter', sans-serif; font-size: 14px; position: relative; z-index: 10;
+        }
+        .org-btn:hover { background: var(--deep-red); transform: translateY(-2px); }
+
+        /* Tryout Designer Styles */
+        .designer-container { max-width: 1400px; margin: 0 auto; padding: 0 20px 20px; }
+        .tabs {
+            display: flex; gap: 8px; margin-bottom: 24px; background: white;
+            padding: 8px; border-radius: 16px; box-shadow: 0 2px 8px var(--shadow); flex-wrap: wrap;
+        }
+        .tab {
+            flex: 1; min-width: 100px; padding: 12px; background: transparent; border: none;
+            border-radius: 12px; font-size: 14px; font-weight: 600; color: var(--text-medium);
+            cursor: pointer; transition: all 0.3s ease;
+        }
+        .tab:hover { background: var(--off-white); }
+        .tab.active { background: var(--gradient-primary); color: white; box-shadow: 0 4px 12px rgba(230, 57, 70, 0.3); }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .card {
+            background: white; border-radius: 20px; padding: 32px;
+            margin-bottom: 24px; box-shadow: 0 6px 20px var(--shadow);
+            border-top: 4px solid var(--primary-red);
+        }
+        .section-title { font-size: 18px; font-weight: 700; margin-bottom: 16px; }
+        .input-group { margin-bottom: 20px; }
+        .input-label { display: block; font-size: 14px; font-weight: 600; margin-bottom: 8px; }
+        .input-field {
+            width: 100%; padding: 14px 16px; border: 2px solid var(--border-light);
+            border-radius: 12px; font-size: 15px; font-family: 'Inter', sans-serif; transition: all 0.3s ease;
+        }
+        .input-field:focus { outline: none; border-color: var(--light-blue); }
+        .btn-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 12px; }
+        .btn-option {
+            padding: 16px; border: 2px solid var(--border-light); border-radius: 12px;
+            text-align: center; cursor: pointer; transition: all 0.3s ease; background: white; font-weight: 600;
+        }
+        .btn-option:hover { border-color: var(--light-blue); }
+        .btn-option.selected { border-color: var(--primary-red); background: rgba(220, 20, 60, 0.05); }
+        .station-list { display: flex; flex-direction: column; gap: 12px; }
+        .station-item {
+            background: var(--off-white); border: 2px solid var(--border-light);
+            border-radius: 12px; padding: 20px;
+        }
+        .station-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .station-icon-badge {
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 48px; height: 48px; background: var(--gradient-blue);
+            color: white; font-weight: 700; font-size: 13px; border-radius: 12px; letter-spacing: 0.5px;
+            box-shadow: 0 4px 12px rgba(74, 144, 226, 0.3);
+        }
+        .station-title { flex: 1; margin-left: 16px; font-weight: 700; font-size: 16px; }
+        
+        /* Role View Styles */
+        .info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
+        .info-item { padding: 16px; background: var(--off-white); border-radius: 12px; }
+        .info-label { font-size: 12px; color: var(--text-medium); margin-bottom: 4px; font-weight: 600; text-transform: uppercase; }
+        .info-value { font-size: 18px; font-weight: 700; color: var(--text-dark); }
+        .status-badge { display: inline-block; padding: 6px 12px; border-radius: 8px; font-size: 13px; font-weight: 600; }
+        .status-checked-in { background: rgba(16, 185, 129, 0.1); color: var(--success-green); }
+        .status-not-checked-in { background: rgba(245, 158, 11, 0.1); color: var(--warning-orange); }
+        .station-number {
+            width: 40px; height: 40px; background: var(--gradient-teal);
+            border-radius: 10px; display: flex; align-items: center; justify-content: center;
+            color: white; font-weight: 700; font-size: 16px;
+            box-shadow: 0 4px 10px rgba(26, 188, 156, 0.3);
+        }
+        .station-info { flex: 1; margin-left: 16px; }
+        .station-name { font-weight: 700; font-size: 16px; margin-bottom: 4px; color: var(--text-dark); }
+        .station-meta { font-size: 13px; color: var(--text-medium); }
+        .score-display {
+            display: flex; align-items: center; justify-content: center;
+            width: 60px; height: 60px; border-radius: 12px;
+            background: var(--gradient-primary);
+            color: white; font-size: 24px; font-weight: 700;
+            box-shadow: 0 4px 12px rgba(230, 57, 70, 0.4);
+        }
+        .player-card-small {
+            background: white; border: 2px solid var(--border-light); border-radius: 12px;
+            padding: 16px; display: flex; align-items: center; gap: 16px; margin-bottom: 12px;
+            transition: all 0.3s ease;
+        }
+        .player-card-small:hover {
+            border-color: var(--light-blue);
+            box-shadow: 0 4px 16px rgba(74, 144, 226, 0.2);
+        }
+        .player-avatar-small {
+            width: 48px; height: 48px; border-radius: 50%;
+            background: var(--gradient-blue);
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-weight: 700; font-size: 18px;
+            box-shadow: 0 4px 10px rgba(74, 144, 226, 0.3);
+        }
+        .player-info-small { flex: 1; }
+        .player-name-small { font-weight: 600; margin-bottom: 4px; }
+        .player-meta-small { font-size: 13px; color: var(--text-medium); }
+        .score-input-container { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+        .score-btn {
+            width: 40px; height: 40px; border: 2px solid var(--border-light);
+            border-radius: 8px; background: white; cursor: pointer;
+            font-weight: 700; transition: all 0.3s ease;
+        }
+        .score-btn:hover { border-color: var(--light-blue); }
+        .score-btn.selected {
+            background: linear-gradient(135deg, var(--primary-red), var(--deep-red));
+            color: white; border-color: var(--primary-red);
+        }
+        .person-item {
+            background: white; border: 2px solid var(--border-light); border-radius: 12px;
+            padding: 16px; margin-bottom: 12px; transition: all 0.3s ease;
+        }
+        .person-item:hover {
+            border-color: var(--light-blue); box-shadow: 0 4px 12px var(--shadow);
+        }
+        
+        /* Slider Styling */
+        .slider {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 8px;
+            border-radius: 5px;
+            background: var(--border-light);
+            outline: none;
+            transition: background 0.3s;
+        }
+        .slider:hover {
+            background: #D0D5DD;
+        }
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--gradient-primary);
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(230, 57, 70, 0.4);
+            transition: all 0.3s ease;
+        }
+        .slider::-webkit-slider-thumb:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 12px rgba(230, 57, 70, 0.6);
+        }
+        .slider::-moz-range-thumb {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--gradient-primary);
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 8px rgba(230, 57, 70, 0.4);
+            transition: all 0.3s ease;
+        }
+        .slider::-moz-range-thumb:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 12px rgba(230, 57, 70, 0.6);
+        }
+    </style>
+</head>
+<body>
+    <div id="loadingScreen">
+        <div class="loading-logo">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#DC143C" stroke-width="2.5">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+        </div>
+        <div class="loading-text">RosterReady</div>
+        <div class="loading-subtext">Complete Tryout Management System</div>
+        <div class="loading-spinner"></div>
+    </div>
+
+    <!-- Auth View -->
+    <div id="authView" class="view">
+        <div class="auth-container">
+            <div class="auth-logo">
+                <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                </svg>
+            </div>
+            <h1 class="auth-title">Welcome to RosterReady</h1>
+            <p class="auth-subtitle">Quick Test Login</p>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
+                <button onclick="quickLogin('player')" style="padding: 16px; background: white; border: 2px solid var(--border-light); border-radius: 12px; cursor: pointer; font-weight: 600; transition: all 0.3s;">Player</button>
+                <button onclick="quickLogin('parent')" style="padding: 16px; background: white; border: 2px solid var(--border-light); border-radius: 12px; cursor: pointer; font-weight: 600; transition: all 0.3s;">Parent</button>
+                <button onclick="quickLogin('coach')" style="padding: 16px; background: white; border: 2px solid var(--border-light); border-radius: 12px; cursor: pointer; font-weight: 600; transition: all 0.3s;">Coach</button>
+                <button onclick="quickLogin('admin')" style="padding: 16px; background: white; border: 2px solid var(--border-light); border-radius: 12px; cursor: pointer; font-weight: 600; transition: all 0.3s;">Admin</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Dashboard -->
+    <div id="adminView" class="view">
+        <div class="top-nav">
+            <div class="nav-left">
+                <div class="page-title">My Organizations</div>
+            </div>
+            <button class="btn-logout" onclick="handleLogout()">Sign Out</button>
+        </div>
+        <div class="org-grid">
+            <div class="org-card">
+                <div class="org-icon">RT</div>
+                <div class="org-name">Rosemount Thunder Softball</div>
+                <div class="org-meta">3 teams • 45 players</div>
+                <button class="org-btn" onclick="openTryoutDesigner('Rosemount Thunder Softball')">Manage Tryouts</button>
+            </div>
+            <div class="org-card">
+                <div class="org-icon">MV</div>
+                <div class="org-name">Minnesota Valley Fastpitch</div>
+                <div class="org-meta">5 teams • 78 players</div>
+                <button class="org-btn" onclick="openTryoutDesigner('Minnesota Valley Fastpitch')">Manage Tryouts</button>
+            </div>
+            <div class="org-card" style="border: 2px dashed var(--border-light); background: var(--off-white);">
+                <div class="org-icon" style="background: transparent; color: var(--text-medium); font-size: 48px;">+</div>
+                <div class="org-name" style="color: var(--text-medium);">Add Organization</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tryout Designer View -->
+    <div id="designerView" class="view">
+        <div class="top-nav">
+            <div class="nav-left">
+                <button class="back-btn" onclick="backToOrgs()">← Back</button>
+                <div class="page-title" id="currentOrgName">Organization</div>
+            </div>
+            <button class="btn-logout" onclick="handleLogout()">Sign Out</button>
+        </div>
+        <div class="designer-container">
+            <div class="tabs">
+                <button class="tab active" onclick="switchDesignerTab('setup', this)">Setup</button>
+                <button class="tab" onclick="switchDesignerTab('stations', this)">Stations</button>
+                <button class="tab" onclick="switchDesignerTab('staff', this)">Staff</button>
+                <button class="tab" onclick="switchDesignerTab('players', this)">Players</button>
+                <button class="tab" onclick="switchDesignerTab('assignments', this)">Assignments</button>
+                <button class="tab" onclick="switchDesignerTab('scoring', this)">Scoring</button>
+                <button class="tab" onclick="switchDesignerTab('people', this)">People</button>
+                <button class="tab" onclick="switchDesignerTab('messages', this)">Messages</button>
+            </div>
+
+            <!-- Setup Tab -->
+            <div id="setupContent" class="tab-content active">
+                <div class="card">
+                    <h3 class="section-title">Tryout Setup</h3>
+                    <div class="input-group">
+                        <label class="input-label">Number of Players: <span id="playerCountValue" style="color: var(--primary-red); font-weight: 700;">50</span></label>
+                        <input type="range" min="10" max="200" value="50" class="slider" id="playerCountSlider" oninput="updatePlayerCount(this.value)" style="width: 100%; height: 8px; border-radius: 5px; background: var(--border-light); outline: none; -webkit-appearance: none;">
+                        <div style="display: flex; justify-content: space-between; font-size: 12px; color: var(--text-medium); margin-top: 4px;">
+                            <span>10</span>
+                            <span>200</span>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label">Tryout Duration</label>
+                        <div class="btn-grid">
+                            <div class="btn-option" onclick="selectDuration(this)">1 hour</div>
+                            <div class="btn-option" onclick="selectDuration(this)">2 hours</div>
+                            <div class="btn-option selected" onclick="selectDuration(this)">3 hours</div>
+                            <div class="btn-option" onclick="selectDuration(this)">4 hours</div>
+                            <div class="btn-option" onclick="selectDuration(this)">All Day</div>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label">Select Age Level</label>
+                        <div class="btn-grid">
+                            <div class="btn-option selected" onclick="selectAgeLevel(this)">8U</div>
+                            <div class="btn-option" onclick="selectAgeLevel(this)">10U</div>
+                            <div class="btn-option" onclick="selectAgeLevel(this)">12U</div>
+                            <div class="btn-option" onclick="selectAgeLevel(this)">14U</div>
+                            <div class="btn-option" onclick="selectAgeLevel(this)">16U</div>
+                            <div class="btn-option" onclick="selectAgeLevel(this)">18U</div>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" style="max-width: 200px;" onclick="initializeTryout()">Initialize Tryout</button>
+                </div>
+            </div>
+
+            <!-- Stations Tab -->
+            <div id="stationsContent" class="tab-content">
+                <div class="card">
+                    <h3 class="section-title">Station Management</h3>
+                    <div class="station-list">
+                        <div class="station-item">
+                            <div class="station-header">
+                                <div style="display: flex; align-items: center;">
+                                    <div class="station-icon-badge">HIT</div>
+                                    <div class="station-title">Hitting Station</div>
+                                </div>
+                                <div style="color: var(--text-medium); font-size: 13px;">30 min • 2-3 staff needed</div>
+                            </div>
+                            <div style="color: var(--text-medium); font-size: 14px;">Bat speed, contact quality, swing mechanics</div>
+                        </div>
+                        <div class="station-item">
+                            <div class="station-header">
+                                <div style="display: flex; align-items: center;">
+                                    <div class="station-icon-badge">FLD</div>
+                                    <div class="station-title">Fielding - Infield</div>
+                                </div>
+                                <div style="color: var(--text-medium); font-size: 13px;">30 min • 2 staff needed</div>
+                            </div>
+                            <div style="color: var(--text-medium); font-size: 14px;">Ground balls, footwork, throws to first</div>
+                        </div>
+                        <div class="station-item">
+                            <div class="station-header">
+                                <div style="display: flex; align-items: center;">
+                                    <div class="station-icon-badge">RUN</div>
+                                    <div class="station-title">Base Running</div>
+                                </div>
+                                <div style="color: var(--text-medium); font-size: 13px;">20 min • 2 staff needed</div>
+                            </div>
+                            <div style="color: var(--text-medium); font-size: 14px;">Speed, technique, first step</div>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" style="margin-top: 20px; max-width: 200px;" onclick="alert('Add Station feature - This would open a modal to create a new station')">Add Station</button>
+                </div>
+            </div>
+
+            <!-- Staff Tab -->
+            <div id="staffContent" class="tab-content">
+                <div class="card">
+                    <h3 class="section-title">Staff Management</h3>
+                    <div style="background: var(--off-white); padding: 20px; border-radius: 12px; margin-bottom: 16px;">
+                        <div style="font-weight: 600; margin-bottom: 8px;">Coach Sarah Martinez</div>
+                        <div style="font-size: 13px; color: var(--text-medium);">Evaluator • Assigned to: Hitting, Fielding</div>
+                    </div>
+                    <div style="background: var(--off-white); padding: 20px; border-radius: 12px; margin-bottom: 16px;">
+                        <div style="font-weight: 600; margin-bottom: 8px;">Coach Mike Johnson</div>
+                        <div style="font-size: 13px; color: var(--text-medium);">Helper • Assigned to: Base Running</div>
+                    </div>
+                    <button class="btn btn-primary" style="max-width: 200px;" onclick="alert('Add Staff feature - This would open a modal to add a new staff member')">Add Staff</button>
+                </div>
+            </div>
+
+            <!-- Players Tab -->
+            <div id="playersContent" class="tab-content">
+                <div class="card">
+                    <h3 class="section-title">Player Roster</h3>
+                    <div style="display: flex; gap: 12px; margin-bottom: 20px;">
+                        <button class="btn btn-primary" style="flex: 1;" onclick="alert('Import CSV - This would open a file picker to import player data')">Import CSV</button>
+                        <button class="btn btn-primary" style="flex: 1;" onclick="alert('Add Player - This would open a modal to add a new player manually')">Add Player</button>
+                        <button class="btn btn-primary" style="flex: 1;" onclick="alert('Export CSV - This would download the current roster as a CSV file')">Export CSV</button>
+                    </div>
+                    <div style="background: var(--off-white); padding: 20px; border-radius: 12px; text-align: center; color: var(--text-medium);">
+                        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="opacity: 0.3; margin: 0 auto 16px;">
+                            <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                        </svg>
+                        <div>No players added yet. Import a CSV or add players manually.</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Assignments Tab -->
+            <div id="assignmentsContent" class="tab-content">
+                <div class="card">
+                    <h3 class="section-title">Station Assignments</h3>
+                    <button class="btn btn-primary" style="max-width: 250px; margin-bottom: 20px;" onclick="alert('Auto-Assign - This would automatically distribute players across all stations')">Auto-Assign Players to Stations</button>
+                    <div style="background: var(--off-white); padding: 20px; border-radius: 12px; text-align: center; color: var(--text-medium);">
+                        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="opacity: 0.3; margin: 0 auto 16px;">
+                            <circle cx="12" cy="12" r="10"/>
+                            <path d="M12 6v6l4 2"/>
+                        </svg>
+                        <div>No assignments yet. Add players and click auto-assign.</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Scoring Tab -->
+            <div id="scoringContent" class="tab-content">
+                <div class="card">
+                    <h3 class="section-title">Tryout Scoring</h3>
+                    <button class="btn btn-primary" style="max-width: 200px; margin-bottom: 20px;" onclick="alert('Export Scores - This would download all scores as a CSV file')">Export Scores</button>
+                    <div style="background: var(--off-white); padding: 20px; border-radius: 12px; text-align: center; color: var(--text-medium);">
+                        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="opacity: 0.3; margin: 0 auto 16px;">
+                            <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
+                        </svg>
+                        <div>No scores yet. Assign players to stations to begin scoring.</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- People Tab -->
+            <div id="peopleContent" class="tab-content">
+                <div class="card">
+                    <h3 class="section-title">Organization Directory</h3>
+                    <div style="display: flex; gap: 12px; margin-bottom: 20px; align-items: center;">
+                        <input type="text" class="input-field" placeholder="🔍 Search by name, email, or role..." style="flex: 1; margin: 0;" id="peopleSearch" onkeyup="searchPeople()">
+                        <select class="input-field" style="width: 200px; margin: 0;" onchange="filterByRole(this.value)">
+                            <option value="all">All Roles</option>
+                            <option value="admin">Admins</option>
+                            <option value="coach">Coaches</option>
+                            <option value="player">Players</option>
+                            <option value="parent">Parents</option>
+                        </select>
+                    </div>
+                    
+                    <div style="background: var(--off-white); padding: 16px; border-radius: 12px; margin-bottom: 20px; display: flex; justify-content: space-around; text-align: center;">
+                        <div>
+                            <div style="font-size: 24px; font-weight: 700; color: var(--primary-red);">48</div>
+                            <div style="font-size: 13px; color: var(--text-medium);">Total Members</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 24px; font-weight: 700; color: var(--primary-red);">32</div>
+                            <div style="font-size: 13px; color: var(--text-medium);">Players</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 24px; font-weight: 700; color: var(--primary-red);">8</div>
+                            <div style="font-size: 13px; color: var(--text-medium);">Coaches</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 24px; font-weight: 700; color: var(--primary-red);">6</div>
+                            <div style="font-size: 13px; color: var(--text-medium);">Parents</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 24px; font-weight: 700; color: var(--primary-red);">2</div>
+                            <div style="font-size: 13px; color: var(--text-medium);">Admins</div>
+                        </div>
+                    </div>
+
+                    <div id="peopleList">
+                        <!-- Admins -->
+                        <div class="person-item" data-role="admin" data-name="Admin User" data-email="admin@rosterready.com">
+                            <div style="display: flex; align-items: center; gap: 16px;">
+                                <div class="player-avatar-small" style="background: linear-gradient(135deg, var(--primary-red), var(--deep-red));">AU</div>
+                                <div style="flex: 1;">
+                                    <div style="font-weight: 600; margin-bottom: 4px;">Admin User</div>
+                                    <div style="font-size: 13px; color: var(--text-medium);"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="f091949d999eb0829f838495828295919489de939f9d">[email&#160;protected]</a> • (555) 100-0001</div>
+                                </div>
+                                <div style="background: rgba(220, 20, 60, 0.1); color: var(--primary-red); padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600;">ADMIN</div>
+                            </div>
+                        </div>
+
+                        <div class="person-item" data-role="admin" data-name="Jennifer Martinez" data-email="jennifer.m@email.com">
+                            <div style="display: flex; align-items: center; gap: 16px;">
+                                <div class="player-avatar-small" style="background: linear-gradient(135deg, var(--primary-red), var(--deep-red));">JM</div>
+                                <div style="flex: 1;">
+                                    <div style="font-weight: 600; margin-bottom: 4px;">Jennifer Martinez</div>
+                                    <div style="font-size: 13px; color: var(--text-medium);"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="503a353e3e393635227e3d10353d31393c7e333f3d">[email&#160;protected]</a> • (555) 100-0002</div>
+                                </div>
+                                <div style="background: rgba(220, 20, 60, 0.1); color: var(--primary-red); padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600;">ADMIN</div>
+                            </div>
+                        </div>
+
+                        <!-- Coaches -->
+                        <div class="person-item" data-role="coach" data-name="Mike Smith" data-email="mike.s@email.com">
+                            <div style="display: flex; align-items: center; gap: 16px;">
+                                <div class="player-avatar-small">MS</div>
+                                <div style="flex: 1;">
+                                    <div style="font-weight: 600; margin-bottom: 4px;">Mike Smith</div>
+                                    <div style="font-size: 13px; color: var(--text-medium);"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="026f6b69672c7142676f636b6e2c616d6f">[email&#160;protected]</a> • (555) 200-0001</div>
+                                </div>
+                                <div style="background: rgba(135, 206, 235, 0.2); color: var(--sky-blue); padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600;">COACH</div>
+                            </div>
+                        </div>
+
+                        <div class="person-item" data-role="coach" data-name="Sarah Martinez" data-email="sarah.martinez@email.com">
+                            <div style="display: flex; align-items: center; gap: 16px;">
+                                <div class="player-avatar-small">SM</div>
+                                <div style="flex: 1;">
+                                    <div style="font-weight: 600; margin-bottom: 4px;">Sarah Martinez</div>
+                                    <div style="font-size: 13px; color: var(--text-medium);"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="82f1e3f0e3eaacefe3f0f6ebece7f8c2e7efe3ebeeace1edef">[email&#160;protected]</a> • (555) 200-0002</div>
+                                </div>
+                                <div style="background: rgba(135, 206, 235, 0.2); color: var(--sky-blue); padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600;">COACH</div>
+                            </div>
+                        </div>
+
+                        <div class="person-item" data-role="coach" data-name="David Johnson" data-email="david.j@email.com">
+                            <div style="display: flex; align-items: center; gap: 16px;">
+                                <div class="player-avatar-small">DJ</div>
+                                <div style="flex: 1;">
+                                    <div style="font-weight: 600; margin-bottom: 4px;">David Johnson</div>
+                                    <div style="font-size: 13px; color: var(--text-medium);"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="c9ada8bfa0ade7a389aca4a8a0a5e7aaa6a4">[email&#160;protected]</a> • (555) 200-0003</div>
+                                </div>
+                                <div style="background: rgba(135, 206, 235, 0.2); color: var(--sky-blue); padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600;">COACH</div>
+                            </div>
+                        </div>
+
+                        <!-- Players -->
+                        <div class="person-item" data-role="player" data-name="Sarah Johnson" data-email="sarah.j@email.com">
+                            <div style="display: flex; align-items: center; gap: 16px;">
+                                <div class="player-avatar-small">SJ</div>
+                                <div style="flex: 1;">
+                                    <div style="font-weight: 600; margin-bottom: 4px;">Sarah Johnson</div>
+                                    <div style="font-size: 13px; color: var(--text-medium);"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="57243625363f793d17323a363e3b7934383a">[email&#160;protected]</a> • Jersey #12 • 13 years old</div>
+                                </div>
+                                <div style="background: rgba(16, 185, 129, 0.1); color: var(--success-green); padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600;">PLAYER</div>
+                            </div>
+                        </div>
+
+                        <div class="person-item" data-role="player" data-name="Emma Davis" data-email="emma.d@email.com">
+                            <div style="display: flex; align-items: center; gap: 16px;">
+                                <div class="player-avatar-small">ED</div>
+                                <div style="flex: 1;">
+                                    <div style="font-weight: 600; margin-bottom: 4px;">Emma Davis</div>
+                                    <div style="font-size: 13px; color: var(--text-medium);"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="86e3ebebe7a8e2c6e3ebe7efeaa8e5e9eb">[email&#160;protected]</a> • Jersey #8 • 12 years old</div>
+                                </div>
+                                <div style="background: rgba(16, 185, 129, 0.1); color: var(--success-green); padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600;">PLAYER</div>
+                            </div>
+                        </div>
+
+                        <div class="person-item" data-role="player" data-name="Olivia Martinez" data-email="olivia.m@email.com">
+                            <div style="display: flex; align-items: center; gap: 16px;">
+                                <div class="player-avatar-small">OM</div>
+                                <div style="flex: 1;">
+                                    <div style="font-weight: 600; margin-bottom: 4px;">Olivia Martinez</div>
+                                    <div style="font-size: 13px; color: var(--text-medium);"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="523d3e3b243b337c3f12373f333b3e7c313d3f">[email&#160;protected]</a> • Jersey #15 • 13 years old</div>
+                                </div>
+                                <div style="background: rgba(16, 185, 129, 0.1); color: var(--success-green); padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600;">PLAYER</div>
+                            </div>
+                        </div>
+
+                        <!-- Parents -->
+                        <div class="person-item" data-role="parent" data-name="Jennifer Johnson" data-email="jennifer.j@email.com">
+                            <div style="display: flex; align-items: center; gap: 16px;">
+                                <div class="player-avatar-small" style="background: linear-gradient(135deg, var(--warning-orange), #D97706);">JJ</div>
+                                <div style="flex: 1;">
+                                    <div style="font-weight: 600; margin-bottom: 4px;">Jennifer Johnson</div>
+                                    <div style="font-size: 13px; color: var(--text-medium);"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="ea808f8484838c8f98c480aa8f878b8386c4898587">[email&#160;protected]</a> • (555) 400-0001 • Parent of Sarah Johnson</div>
+                                </div>
+                                <div style="background: rgba(245, 158, 11, 0.1); color: var(--warning-orange); padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600;">PARENT</div>
+                            </div>
+                        </div>
+
+                        <div class="person-item" data-role="parent" data-name="Michael Davis" data-email="michael.d@email.com">
+                            <div style="display: flex; align-items: center; gap: 16px;">
+                                <div class="player-avatar-small" style="background: linear-gradient(135deg, var(--warning-orange), #D97706);">MD</div>
+                                <div style="flex: 1;">
+                                    <div style="font-weight: 600; margin-bottom: 4px;">Michael Davis</div>
+                                    <div style="font-size: 13px; color: var(--text-medium);"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="c1aca8a2a9a0a4adefa581a4aca0a8adefa2aeac">[email&#160;protected]</a> • (555) 400-0002 • Parent of Emma Davis</div>
+                                </div>
+                                <div style="background: rgba(245, 158, 11, 0.1); color: var(--warning-orange); padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600;">PARENT</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Messages Tab -->
+            <div id="messagesContent" class="tab-content">
+                <div class="card">
+                    <h3 class="section-title">Invite People to Organization</h3>
+                    <p style="color: var(--text-medium); margin-bottom: 16px;">Share this link with players, parents, and coaches to join your organization</p>
+                    <div style="background: var(--off-white); padding: 16px; border-radius: 12px; margin-bottom: 16px; display: flex; align-items: center; gap: 12px;">
+                        <input type="text" class="input-field" id="inviteLink" value="https://rosterready.app/join/rosemount-thunder-12345" readonly style="flex: 1; margin: 0;">
+                        <button class="btn btn-primary" style="width: auto; padding: 14px 24px;" onclick="copyInviteLink()">Copy Link</button>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px;">
+                        <button class="btn btn-primary" style="width: 100%;" onclick="alert('Share via Email - This would open your email client with the invite link')">Email</button>
+                        <button class="btn btn-primary" style="width: 100%;" onclick="alert('Share via Text - This would open your messaging app with the invite link')">Text Message</button>
+                        <button class="btn btn-primary" style="width: 100%;" onclick="alert('Generate QR Code - This would create a QR code for easy scanning')">QR Code</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3 class="section-title">Send Group Message</h3>
+                    <div class="input-group">
+                        <label class="input-label">Send To</label>
+                        <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px;">
+                            <div class="btn-option selected" onclick="toggleRecipient(this)" style="flex: 0 0 auto; padding: 10px 16px;">All</div>
+                            <div class="btn-option" onclick="toggleRecipient(this)" style="flex: 0 0 auto; padding: 10px 16px;">Players</div>
+                            <div class="btn-option" onclick="toggleRecipient(this)" style="flex: 0 0 auto; padding: 10px 16px;">Parents</div>
+                            <div class="btn-option" onclick="toggleRecipient(this)" style="flex: 0 0 auto; padding: 10px 16px;">Coaches</div>
+                            <div class="btn-option" onclick="toggleRecipient(this)" style="flex: 0 0 auto; padding: 10px 16px;">Staff</div>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label">Message Subject</label>
+                        <input type="text" class="input-field" placeholder="e.g., Tryout Schedule Update">
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label">Message</label>
+                        <textarea class="input-field" style="min-height: 150px; resize: vertical;" placeholder="Type your message here..."></textarea>
+                    </div>
+                    <div style="display: flex; gap: 12px;">
+                        <button class="btn btn-primary" style="flex: 1;" onclick="sendGroupMessage()">Send Message</button>
+                        <button class="btn-primary" style="flex: 1; background: white; color: var(--text-dark); border: 2px solid var(--border-light);" onclick="alert('Save as Draft')">Save Draft</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3 class="section-title">Message History</h3>
+                    <div style="background: var(--off-white); padding: 20px; border-radius: 12px; margin-bottom: 12px;">
+                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px;">
+                            <div>
+                                <div style="font-weight: 600; margin-bottom: 4px;">Tryout Schedule Reminder</div>
+                                <div style="font-size: 13px; color: var(--text-medium);">Sent to: All • 2 days ago</div>
+                            </div>
+                            <div style="background: rgba(16, 185, 129, 0.1); color: var(--success-green); padding: 4px 12px; border-radius: 6px; font-size: 12px; font-weight: 600;">Sent</div>
+                        </div>
+                        <div style="color: var(--text-medium); font-size: 14px; margin-top: 12px;">Reminder: Tryouts are this Saturday at 9 AM. Please arrive 15 minutes early...</div>
+                    </div>
+                    <div style="background: var(--off-white); padding: 20px; border-radius: 12px; margin-bottom: 12px;">
+                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px;">
+                            <div>
+                                <div style="font-weight: 600; margin-bottom: 4px;">Weather Update</div>
+                                <div style="font-size: 13px; color: var(--text-medium);">Sent to: Players, Parents • 5 days ago</div>
+                            </div>
+                            <div style="background: rgba(16, 185, 129, 0.1); color: var(--success-green); padding: 4px 12px; border-radius: 6px; font-size: 12px; font-weight: 600;">Sent</div>
+                        </div>
+                        <div style="color: var(--text-medium); font-size: 14px; margin-top: 12px;">Due to forecasted rain, we'll be moving indoors to the gym facility...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Role Dashboard (Player/Parent/Coach) -->
+    <div id="roleView" class="view">
+        <div class="top-nav">
+            <div class="nav-left">
+                <div class="page-title" id="rolePageTitle">Dashboard</div>
+            </div>
+            <button class="btn-logout" onclick="handleLogout()">Sign Out</button>
+        </div>
+        <div id="roleContent" style="max-width: 1400px; margin: 0 auto; padding: 0 20px 20px;">
+            <!-- Role-specific content will load here -->
+        </div>
+    </div>
+
+    <script>
+        let currentUser = null;
+        let currentOrg = null;
+
+        const mockData = {
+            player: {
+                jersey: "12", group: "3", tryoutName: "2024 Spring Tryouts", tryoutDate: "March 15, 2024",
+                startTime: "9:00 AM", endTime: "12:00 PM", duration: "3 hours",
+                location: "Rosemount High School Field", address: "3335 142nd St W, Rosemount, MN 55068",
+                checkedIn: false,
+                stations: [
+                    { id: 1, name: "Hitting", desc: "Bat speed and contact", duration: "30 min", evaluator: "Coach Smith", score: 8 },
+                    { id: 2, name: "Fielding - Infield", desc: "Ground balls", duration: "30 min", evaluator: "Coach Johnson", score: 7 },
+                    { id: 3, name: "Base Running", desc: "Speed and technique", duration: "20 min", evaluator: "Coach Davis", score: 9 },
+                    { id: 4, name: "Throwing", desc: "Arm strength", duration: "20 min", evaluator: "Coach Smith", score: 8 },
+                    { id: 5, name: "Fielding - Outfield", desc: "Fly balls", duration: "30 min", evaluator: "Coach Martinez", score: null },
+                    { id: 6, name: "Position Work", desc: "Specialized drills", duration: "30 min", evaluator: "Coach Johnson", score: null }
+                ],
+                overallScore: 8.0,
+                notes: "Great bat speed and solid fielding fundamentals. Work on first-step quickness in outfield.",
+                strengths: ["Batting", "Base running speed", "Positive attitude"],
+                improvements: ["Outfield reads", "Throwing accuracy"]
+            },
+            parent: {
+                children: [{ id: 1, name: "Sarah Johnson", jersey: "12", group: "3", age: 13 }]
+            },
+            coach: {
+                assignedStations: ["Hitting", "Throwing"],
+                timeSlots: ["9:00 AM - 10:30 AM", "11:00 AM - 12:00 PM"],
+                players: [
+                    { id: 1, name: "Sarah Johnson", jersey: "12", group: "3", scores: {} },
+                    { id: 2, name: "Emma Davis", jersey: "8", group: "3", scores: {} },
+                    { id: 3, name: "Olivia Martinez", jersey: "15", group: "3", scores: {} }
+                ]
+            }
+        };
+
+        window.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                const savedUser = localStorage.getItem('rosterready_user');
+                if (savedUser) {
+                    currentUser = JSON.parse(savedUser);
+                    showDashboard();
+                } else {
+                    showView('authView');
+                }
+                document.getElementById('loadingScreen').classList.add('hidden');
+            }, 2000);
+        });
+
+        function showView(viewId) {
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            document.getElementById(viewId).classList.add('active');
+        }
+
+        function quickLogin(role) {
+            const users = {
+                'player': { name: 'Sarah Johnson', email: 'sarah@example.com', role: 'player' },
+                'parent': { name: 'Jennifer Johnson', email: 'jennifer@example.com', role: 'parent' },
+                'coach': { name: 'Mike Smith', email: 'mike@example.com', role: 'coach' },
+                'admin': { name: 'Admin User', email: 'admin@example.com', role: 'admin' }
+            };
+            currentUser = users[role];
+            localStorage.setItem('rosterready_user', JSON.stringify(currentUser));
+            showDashboard();
+        }
+
+        function showDashboard() {
+            if (currentUser.role === 'admin') {
+                showView('adminView');
+            } else {
+                document.getElementById('rolePageTitle').textContent = currentUser.role.charAt(0).toUpperCase() + currentUser.role.slice(1) + ' Dashboard';
+                loadRoleContent();
+                showView('roleView');
+            }
+        }
+
+        function loadRoleContent() {
+            const container = document.getElementById('roleContent');
+            if (currentUser.role === 'player') container.innerHTML = renderPlayerView();
+            else if (currentUser.role === 'parent') container.innerHTML = renderParentView();
+            else if (currentUser.role === 'coach') container.innerHTML = renderCoachView();
+        }
+
+        function renderPlayerView() {
+            const data = mockData.player;
+            return `
+                <div class="tabs">
+                    <button class="tab active" onclick="switchRoleTab('playerHome', this)">Home</button>
+                    <button class="tab" onclick="switchRoleTab('playerStations', this)">Stations</button>
+                    <button class="tab" onclick="switchRoleTab('playerStats', this)">Stats</button>
+                    <button class="tab" onclick="switchRoleTab('playerProfile', this)">Profile</button>
+                </div>
+                <div id="playerHomeContent" class="tab-content active">
+                    <div class="card">
+                        <h3 class="section-title">My Tryout Information</h3>
+                        <div class="info-grid">
+                            <div class="info-item"><div class="info-label">Jersey</div><div class="info-value">#${data.jersey}</div></div>
+                            <div class="info-item"><div class="info-label">Group</div><div class="info-value">Group ${data.group}</div></div>
+                            <div class="info-item"><div class="info-label">Status</div><div class="info-value">
+                                <span class="status-badge ${data.checkedIn ? 'status-checked-in' : 'status-not-checked-in'}">
+                                    ${data.checkedIn ? 'Checked In' : 'Not Checked In'}
+                                </span>
+                            </div></div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <h3 class="section-title">${data.tryoutName}</h3>
+                        <div class="info-grid">
+                            <div class="info-item"><div class="info-label">Date</div><div class="info-value">${data.tryoutDate}</div></div>
+                            <div class="info-item"><div class="info-label">Time</div><div class="info-value">${data.startTime} - ${data.endTime}</div></div>
+                            <div class="info-item"><div class="info-label">Duration</div><div class="info-value">${data.duration}</div></div>
+                        </div>
+                        <div style="margin-top: 20px;">
+                            <div class="info-label">Location</div>
+                            <div class="info-value" style="font-size: 16px;">${data.location}</div>
+                            <div style="color: var(--text-medium); font-size: 14px;">${data.address}</div>
+                            <a href="https://www.google.com/maps/search/${encodeURIComponent(data.address)}" target="_blank" 
+                               style="color: var(--primary-red); text-decoration: none; font-weight: 600; font-size: 14px; margin-top: 8px; display: inline-block;">
+                                View on Map
+                            </a>
+                        </div>
+                        ${!data.checkedIn ? `<button class="btn btn-primary" style="margin-top: 20px;" onclick="alert('Checked in!')">Check In Now</button>` : ''}
+                    </div>
+                </div>
+                <div id="playerStationsContent" class="tab-content">
+                    <div class="card">
+                        <h3 class="section-title">My Station Schedule</h3>
+                        <div class="station-list">
+                            ${data.stations.map((s, i) => `
+                                <div class="station-item">
+                                    <div class="station-header">
+                                        <div style="display: flex; align-items: center;">
+                                            <div class="station-number">${i + 1}</div>
+                                            <div class="station-info">
+                                                <div class="station-name">${s.name}</div>
+                                                <div class="station-meta">${s.desc} • ${s.duration}</div>
+                                                <div class="station-meta">Evaluator: ${s.evaluator}</div>
+                                            </div>
+                                        </div>
+                                        ${s.score !== null ? `<div class="score-display">${s.score}</div>` : '<div style="color: var(--text-medium); font-size: 13px;">Not scored</div>'}
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+                <div id="playerStatsContent" class="tab-content">
+                    <div class="card">
+                        <h3 class="section-title">My Performance</h3>
+                        <div style="background: linear-gradient(135deg, var(--primary-red), var(--deep-red)); color: white; padding: 40px; border-radius: 20px; text-align: center; margin-bottom: 24px;">
+                            <div style="font-size: 14px; opacity: 0.9; margin-bottom: 8px;">OVERALL SCORE</div>
+                            <div style="font-size: 64px; font-weight: 800;">${data.overallScore}</div>
+                        </div>
+                        <h4 style="font-weight: 700; margin-bottom: 12px;">Coach Notes</h4>
+                        <div style="background: var(--off-white); padding: 16px; border-radius: 12px; margin-bottom: 20px;">
+                            <p>${data.notes}</p>
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                            <div>
+                                <h4 style="font-weight: 700; margin-bottom: 12px; color: var(--success-green);">Strengths</h4>
+                                <ul style="list-style: none; padding: 0;">
+                                    ${data.strengths.map(s => `<li style="padding: 8px 0 8px 24px; border-bottom: 1px solid var(--border-light); position: relative;">
+                                        <span style="position: absolute; left: 0; color: var(--success-green); font-weight: bold;">•</span>${s}
+                                    </li>`).join('')}
+                                </ul>
+                            </div>
+                            <div>
+                                <h4 style="font-weight: 700; margin-bottom: 12px; color: var(--warning-orange);">Areas for Improvement</h4>
+                                <ul style="list-style: none; padding: 0;">
+                                    ${data.improvements.map(i => `<li style="padding: 8px 0 8px 24px; border-bottom: 1px solid var(--border-light); position: relative;">
+                                        <span style="position: absolute; left: 0; color: var(--warning-orange); font-weight: bold;">•</span>${i}
+                                    </li>`).join('')}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="playerProfileContent" class="tab-content">
+                    <div class="card">
+                        <h3 class="section-title">My Profile</h3>
+                        <div class="input-group">
+                            <label class="input-label">Full Name</label>
+                            <input type="text" class="input-field" value="${currentUser.name}">
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                            <div class="input-group">
+                                <label class="input-label">Jersey Number</label>
+                                <input type="text" class="input-field" value="${data.jersey}">
+                            </div>
+                            <div class="input-group">
+                                <label class="input-label">Birthday</label>
+                                <input type="date" class="input-field" value="2011-05-15">
+                            </div>
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                            <div class="input-group">
+                                <label class="input-label">Email</label>
+                                <input type="email" class="input-field" value="${currentUser.email}">
+                            </div>
+                            <div class="input-group">
+                                <label class="input-label">Phone</label>
+                                <input type="tel" class="input-field" value="(555) 123-4567">
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label">Position(s)</label>
+                            <input type="text" class="input-field" value="Shortstop, Second Base">
+                        </div>
+                        <h4 style="font-weight: 700; margin: 24px 0 16px;">Emergency Contact</h4>
+                        <div class="input-group">
+                            <label class="input-label">Parent/Guardian Name</label>
+                            <input type="text" class="input-field" value="Jennifer Johnson">
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                            <div class="input-group">
+                                <label class="input-label">Parent Email</label>
+                                <input type="email" class="input-field" value="jennifer@email.com">
+                            </div>
+                            <div class="input-group">
+                                <label class="input-label">Parent Phone</label>
+                                <input type="tel" class="input-field" value="(555) 987-6543">
+                            </div>
+                        </div>
+                        <button class="btn btn-primary" style="max-width: 200px; margin-top: 20px;">Save Changes</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderParentView() {
+            const data = mockData.parent;
+            const child = data.children[0];
+            const playerData = mockData.player;
+            return `
+                <div class="card">
+                    <h3 class="section-title">My Children</h3>
+                    <select class="input-field" style="max-width: 300px;">
+                        ${data.children.map(c => `<option value="${c.id}">${c.name}</option>`).join('')}
+                    </select>
+                </div>
+                <div class="tabs">
+                    <button class="tab active" onclick="switchRoleTab('parentOverview', this)">Overview</button>
+                    <button class="tab" onclick="switchRoleTab('parentStats', this)">Stats & Scores</button>
+                    <button class="tab" onclick="switchRoleTab('parentSettings', this)">Settings</button>
+                </div>
+                <div id="parentOverviewContent" class="tab-content active">
+                    <div class="card">
+                        <h3 class="section-title">${child.name}'s Tryout Info</h3>
+                        <div class="info-grid">
+                            <div class="info-item"><div class="info-label">Jersey</div><div class="info-value">#${child.jersey}</div></div>
+                            <div class="info-item"><div class="info-label">Group</div><div class="info-value">Group ${child.group}</div></div>
+                            <div class="info-item"><div class="info-label">Age</div><div class="info-value">${child.age}</div></div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <h3 class="section-title">Tryout Schedule</h3>
+                        <div class="station-list">
+                            ${playerData.stations.slice(0, 3).map((s, i) => `
+                                <div class="station-item">
+                                    <div style="display: flex; align-items: center;">
+                                        <div class="station-number">${i + 1}</div>
+                                        <div class="station-info">
+                                            <div class="station-name">${s.name}</div>
+                                            <div class="station-meta">${s.duration} • ${s.evaluator}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+                <div id="parentStatsContent" class="tab-content">
+                    <div class="card">
+                        <h3 class="section-title">${child.name}'s Performance</h3>
+                        <div style="background: linear-gradient(135deg, var(--primary-red), var(--deep-red)); color: white; padding: 40px; border-radius: 20px; text-align: center; margin-bottom: 24px;">
+                            <div style="font-size: 14px; opacity: 0.9;">OVERALL SCORE</div>
+                            <div style="font-size: 64px; font-weight: 800;">${playerData.overallScore}</div>
+                        </div>
+                        <h4 style="font-weight: 700; margin-bottom: 12px;">Coach Notes</h4>
+                        <div style="background: var(--off-white); padding: 16px; border-radius: 12px;">
+                            <p>${playerData.notes}</p>
+                        </div>
+                    </div>
+                </div>
+                <div id="parentSettingsContent" class="tab-content">
+                    <div class="card">
+                        <h3 class="section-title">Parent Settings</h3>
+                        <div class="input-group">
+                            <label class="input-label">Your Name</label>
+                            <input type="text" class="input-field" value="${currentUser.name}">
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label">Email</label>
+                            <input type="email" class="input-field" value="${currentUser.email}">
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label">Phone</label>
+                            <input type="tel" class="input-field" value="(555) 987-6543">
+                        </div>
+                        <button class="btn btn-primary" style="max-width: 200px;">Save Changes</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderCoachView() {
+            const data = mockData.coach;
+            return `
+                <div class="card">
+                    <h3 class="section-title">My Assignments</h3>
+                    <div class="info-grid">
+                        <div class="info-item"><div class="info-label">Stations</div><div class="info-value">${data.assignedStations.join(', ')}</div></div>
+                        <div class="info-item"><div class="info-label">Time Slots</div><div class="info-value" style="font-size: 14px;">${data.timeSlots.join(', ')}</div></div>
+                    </div>
+                </div>
+                <div class="tabs">
+                    <button class="tab active" onclick="switchRoleTab('coachStation', this)">Station View</button>
+                    <button class="tab" onclick="switchRoleTab('coachScoring', this)">Scoring</button>
+                </div>
+                <div id="coachStationContent" class="tab-content active">
+                    <div class="card">
+                        <h3 class="section-title">Hitting Station</h3>
+                        <div style="background: var(--off-white); padding: 16px; border-radius: 12px; margin-bottom: 20px;">
+                            <p><strong>Description:</strong> Bat speed, contact quality, swing mechanics.</p>
+                            <p style="margin-top: 8px;"><strong>Time per player:</strong> 8-12 swings (≈5 minutes)</p>
+                        </div>
+                        <h4 style="font-weight: 700; margin-bottom: 12px;">Scoring Rubric</h4>
+                        <ul style="line-height: 2;">
+                            <li><strong>9-10:</strong> Exceptional bat speed, consistent contact</li>
+                            <li><strong>7-8:</strong> Good bat speed, solid fundamentals</li>
+                            <li><strong>5-6:</strong> Average performance</li>
+                            <li><strong>3-4:</strong> Below average</li>
+                            <li><strong>1-2:</strong> Needs significant work</li>
+                        </ul>
+                    </div>
+                </div>
+                <div id="coachScoringContent" class="tab-content">
+                    <div class="card">
+                        <h3 class="section-title">Score Players - Group 3</h3>
+                        ${data.players.map(p => `
+                            <div class="player-card-small">
+                                <div class="player-avatar-small">${p.name.split(' ').map(n => n[0]).join('')}</div>
+                                <div class="player-info-small">
+                                    <div class="player-name-small">${p.name}</div>
+                                    <div class="player-meta-small">Jersey #${p.jersey} • Group ${p.group}</div>
+                                </div>
+                                <div class="score-input-container">
+                                    ${[1,2,3,4,5,6,7,8,9,10].map(score => `
+                                        <button class="score-btn" onclick="this.classList.toggle('selected')">${score}</button>
+                                    `).join('')}
+                                </div>
+                            </div>
+                            <div class="input-group" style="margin-bottom: 24px;">
+                                <label class="input-label">Notes for ${p.name}</label>
+                                <textarea class="input-field" style="min-height: 60px;" placeholder="Add comments..."></textarea>
+                            </div>
+                        `).join('')}
+                        <button class="btn btn-primary">Save All Scores</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function openTryoutDesigner(orgName) {
+            console.log('Opening tryout designer for:', orgName);
+            currentOrg = orgName;
+            document.getElementById('currentOrgName').textContent = orgName;
+            showView('designerView');
+            console.log('Designer view should now be active');
+        }
+
+        function backToOrgs() {
+            showView('adminView');
+        }
+
+        function handleLogout() {
+            localStorage.removeItem('rosterready_user');
+            currentUser = null;
+            location.reload();
+        }
+
+        function switchDesignerTab(tabName, element) {
+            document.querySelectorAll('#designerView .tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('#designerView .tab-content').forEach(c => c.classList.remove('active'));
+            element.classList.add('active');
+            document.getElementById(tabName + 'Content').classList.add('active');
+        }
+
+        function switchRoleTab(tabName, element) {
+            document.querySelectorAll('#roleContent .tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('#roleContent .tab-content').forEach(c => c.classList.remove('active'));
+            element.classList.add('active');
+            document.getElementById(tabName + 'Content').classList.add('active');
+        }
+
+        function selectAgeLevel(element) {
+            document.querySelectorAll('#setupContent .btn-option').forEach(btn => {
+                if (btn.onclick && btn.onclick.toString().includes('selectAgeLevel')) {
+                    btn.classList.remove('selected');
+                }
+            });
+            element.classList.add('selected');
+        }
+
+        function updatePlayerCount(value) {
+            document.getElementById('playerCountValue').textContent = value;
+        }
+
+        function selectDuration(element) {
+            document.querySelectorAll('#setupContent .btn-option').forEach(btn => {
+                if (btn.onclick && btn.onclick.toString().includes('selectDuration')) {
+                    btn.classList.remove('selected');
+                }
+            });
+            element.classList.add('selected');
+        }
+
+        function initializeTryout() {
+            const playerCount = document.getElementById('playerCountSlider').value;
+            const selectedAge = document.querySelector('#setupContent .btn-option.selected').textContent;
+            alert(`Tryout initialized!\n\nPlayers: ${playerCount}\nAge Level: ${selectedAge}\n\nThis would:\n✓ Create default stations\n✓ Set up scoring sheets\n✓ Prepare for player assignments`);
+        }
+
+        function copyInviteLink() {
+            const inviteLink = document.getElementById('inviteLink');
+            inviteLink.select();
+            inviteLink.setSelectionRange(0, 99999); // For mobile
+            navigator.clipboard.writeText(inviteLink.value).then(() => {
+                alert('✓ Invite link copied to clipboard!\n\nShare this link with anyone you want to invite to your organization.');
+            }).catch(() => {
+                alert('Link: ' + inviteLink.value + '\n\nCopy this link to share with others.');
+            });
+        }
+
+        function toggleRecipient(element) {
+            element.classList.toggle('selected');
+        }
+
+        function sendGroupMessage() {
+            const recipients = Array.from(document.querySelectorAll('#messagesContent .btn-option.selected'))
+                .map(el => el.textContent)
+                .join(', ');
+            
+            if (!recipients) {
+                alert('Please select at least one recipient group');
+                return;
+            }
+            
+            alert(`Message sent to: ${recipients}\n\nIn the real app, this would:\n✓ Send email notifications\n✓ Send SMS (if enabled)\n✓ Create in-app
