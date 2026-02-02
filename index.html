@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<!--
+RosterReady - Complete Softball Tryout Management System
+GitHub Pages Ready - No external dependencies
+-->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"="width=device-width, initial-scale=1.0">
+    <title>RosterReady - Complete Tryout Management System</title>
+    <style>
+        :root {
+            --primary-red: #E63946; --deep-red: #C1121F; --light-blue: #4A90E2;
+            --sky-blue: #357ABD; --accent-purple: #9B59B6; --accent-teal: #1ABC9C;
+            --white: #FFFFFF; --off-white: #F8F9FA;
+            --text-dark: #2C3E50; --text-medium: #5A6C7D; --border-light: #E8EAF0;
+            --shadow: rgba(0, 0, 0, 0.1); --success-green: #27AE60;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: Georgia, 'Times New Roman', Times, serif;
+            background: linear-gradient(135deg, #F8F9FA 0%, #E8EEF5 100%);
+            color: var(--text-dark); min-height: 100vh;
+        }
+        .view { display: none; }
+        .view.active { display: block; }
+        .auth-container {
+            background: white; border-radius: 24px; padding: 48px; max-width: 480px;
+            margin: 100px auto; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+        }
+        .auth-logo {
+            width: 72px; height: 72px; background: linear-gradient(135deg, var(--primary-red), var(--deep-red));
+            border-radius: 16px; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px;
+        }
+        .auth-title { font-size: 28px; font-weight: 800; text-align: center; margin-bottom: 8px; }
+        .auth-subtitle { text-align: center; color: var(--text-medium); margin-bottom: 32px; }
+        button {
+            font-family: Georgia, 'Times New Roman', Times, serif;
+            padding: 16px; background: white; border: 2px solid var(--border-light);
+            border-radius: 12px; cursor: pointer; font-weight: 600; transition: all 0.3s;
+        }
+        button:hover { border-color: var(--primary-red); }
+    </style>
+</head>
+<body>
+    <div id="authView" class="view active">
+        <div class="auth-container">
+            <div class="auth-logo">
+                <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                </svg>
+            </div>
+            <h1 class="auth-title">Welcome to RosterReady</h1>
+            <p class="auth-subtitle">Quick Test Login</p>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                <button onclick="alert('Player login clicked! Full app at RosterReady-COMPLETE.html')">Player</button>
+                <button onclick="alert('Parent login clicked! Full app at RosterReady-COMPLETE.html')">Parent</button>
+                <button onclick="alert('Coach login clicked! Full app at RosterReady-COMPLETE.html')">Coach</button>
+                <button onclick="alert('Admin login clicked! Full app at RosterReady-COMPLETE.html')">Admin</button>
+            </div>
+            <div style="margin-top: 32px; padding: 20px; background: var(--off-white); border-radius: 12px; text-align: center;">
+                <p style="color: var(--text-medium); margin-bottom: 16px;">
+                    This is a simplified demo. For the FULL application with all features, please download:
+                </p>
+                <p style="font-weight: 700; color: var(--primary-red);">RosterReady-COMPLETE.html</p>
+            </div>
+        </div>
+    </div>
+    <script>
+        console.log('RosterReady Demo - Buttons are working!');
+    </script>
+</body>
+</html>
