@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coach Dashboard - RosterReady</title>
+    <style>
+        :root {
+            --primary-red: #E63946; --light-blue: #4A90E2; --white: #FFFFFF;
+            --off-white: #F8F9FA; --text-dark: #2C3E50; --text-medium: #5A6C7D;
+            --border-light: #E8EAF0; --shadow: rgba(0, 0, 0, 0.1);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: Georgia, 'Times New Roman', Times, serif;
+            background: linear-gradient(135deg, #F8F9FA 0%, #E8EEF5 100%);
+            color: var(--text-dark); min-height: 100vh;
+        }
+        .top-nav {
+            background: white; border-radius: 20px; padding: 16px 32px; margin: 20px;
+            box-shadow: 0 4px 16px var(--shadow); display: flex; justify-content: space-between; align-items: center;
+        }
+        .nav-logo { width: 50px; height: 50px; }
+        .page-title { font-size: 20px; font-weight: 800; margin-left: 16px; }
+        .btn-logout {
+            padding: 10px 20px; background: var(--off-white); border: 2px solid var(--border-light);
+            border-radius: 12px; font-weight: 600; text-decoration: none; color: var(--text-dark); font-family: Georgia, serif;
+        }
+        .content { max-width: 1200px; margin: 0 auto; padding: 0 20px 20px; }
+        .card {
+            background: white; border-radius: 20px; padding: 32px; margin-bottom: 24px;
+            box-shadow: 0 6px 20px var(--shadow); border-top: 4px solid var(--light-blue);
+        }
+        .card-title { font-size: 18px; font-weight: 700; margin-bottom: 16px; }
+        .player-card {
+            background: var(--off-white); border: 2px solid var(--border-light);
+            border-radius: 12px; padding: 16px; margin-bottom: 16px;
+        }
+        .player-name { font-weight: 600; margin-bottom: 8px; }
+        .score-btn {
+            width: 40px; height: 40px; border: 2px solid var(--border-light);
+            border-radius: 8px; background: white; cursor: pointer; font-weight: 700;
+            font-family: Georgia, serif; margin-right: 8px; transition: all 0.3s;
+        }
+        .score-btn:hover { border-color: var(--primary-red); transform: scale(1.1); }
+        .score-btn.selected { background: var(--primary-red); color: white; border-color: var(--primary-red); }
+    </style>
+</head>
+<body>
+    <div class="top-nav">
+        <div style="display: flex; align-items: center;">
+            <img src="RR_Logo.png" alt="RosterReady" class="nav-logo">
+            <div class="page-title">Coach Dashboard</div>
+        </div>
+        <a href="index.html" class="btn-logout">Sign Out</a>
+    </div>
+
+    <div class="content">
+        <div class="card">
+            <h3 class="card-title">My Assignments</h3>
+            <div style="background: var(--off-white); padding: 16px; border-radius: 12px; margin-bottom: 12px;">
+                <div style="font-weight: 600; margin-bottom: 4px;">Stations: Hitting, Throwing</div>
+                <div style="color: var(--text-medium); font-size: 14px;">Time: 9:00 AM - 10:30 AM, 11:00 AM - 12:00 PM</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3 class="card-title">Score Players - Group 3</h3>
+            
+            <div class="player-card">
+                <div class="player-name">Sarah Johnson</div>
+                <div style="color: var(--text-medium); font-size: 13px; margin-bottom: 12px;">Jersey #12 • Group 3</div>
+                <div style="display: flex; align-items: center; margin-bottom: 12px;">
+                    ${[1,2,3,4,5,6,7,8,9,10].map(n => `<button class="score-btn" onclick="selectScore(this)">${n}</button>`).join('')}
+                </div>
+                <textarea placeholder="Add notes..." style="width: 100%; padding: 12px; border: 2px solid var(--border-light); border-radius: 8px; font-family: Georgia, serif; min-height: 60px;"></textarea>
+            </div>
+
+            <div class="player-card">
+                <div class="player-name">Emma Davis</div>
+                <div style="color: var(--text-medium); font-size: 13px; margin-bottom: 12px;">Jersey #8 • Group 3</div>
+                <div style="display: flex; align-items: center; margin-bottom: 12px;">
+                    ${[1,2,3,4,5,6,7,8,9,10].map(n => `<button class="score-btn" onclick="selectScore(this)">${n}</button>`).join('')}
+                </div>
+                <textarea placeholder="Add notes..." style="width: 100%; padding: 12px; border: 2px solid var(--border-light); border-radius: 8px; font-family: Georgia, serif; min-height: 60px;"></textarea>
+            </div>
+
+            <button style="width: 100%; padding: 14px; background: linear-gradient(135deg, var(--primary-red), #C1121F); color: white; border: none; border-radius: 12px; font-weight: 600; font-size: 16px; font-family: Georgia, serif; cursor: pointer;" onclick="alert('Scores saved successfully!')">
+                Save All Scores
+            </button>
+        </div>
+    </div>
+
+    <script>
+        function selectScore(btn) {
+            const parent = btn.parentElement;
+            parent.querySelectorAll('.score-btn').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tryout Designer - RosterReady</title>
+    <style>
+        :root {
+            --primary-red: #E63946; --light-blue: #4A90E2; --accent-teal: #1ABC9C;
+            --white: #FFFFFF; --off-white: #F8F9FA; --text-dark: #2C3E50;
+            --text-medium: #5A6C7D; --border-light: #E8EAF0; --shadow: rgba(0, 0, 0, 0.1);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: Georgia, 'Times New Roman', Times, serif;
+            background: linear-gradient(135deg, #F8F9FA 0%, #E8EEF5 100%);
+            color: var(--text-dark); min-height: 100vh;
+        }
+        .top-nav {
+            background: white; border-radius: 20px; padding: 16px 32px; margin: 20px;
+            box-shadow: 0 4px 16px var(--shadow); display: flex; justify-content: space-between; align-items: center;
+        }
+        .back-btn {
+            padding: 10px 20px; background: var(--off-white); border: 2px solid var(--border-light);
+            border-radius: 12px; font-weight: 600; text-decoration: none; color: var(--text-dark);
+            font-family: Georgia, serif; margin-right: 16px;
+        }
+        .nav-logo { width: 50px; height: 50px; margin-right: 16px; }
+        .page-title { font-size: 20px; font-weight: 800; }
+        .content { max-width: 1400px; margin: 0 auto; padding: 0 20px 20px; }
+        .tabs {
+            display: flex; gap: 8px; margin-bottom: 24px; background: white;
+            padding: 8px; border-radius: 16px; box-shadow: 0 2px 8px var(--shadow); flex-wrap: wrap;
+        }
+        .tab {
+            flex: 1; min-width: 100px; padding: 12px; background: transparent; border: none;
+            border-radius: 12px; font-size: 14px; font-weight: 600; color: var(--text-medium);
+            cursor: pointer; font-family: Georgia, serif;
+        }
+        .tab.active {
+            background: linear-gradient(135deg, var(--primary-red), #C1121F);
+            color: white; box-shadow: 0 4px 12px rgba(230,57,70,0.3);
+        }
+        .card {
+            background: white; border-radius: 20px; padding: 32px; margin-bottom: 24px;
+            box-shadow: 0 6px 20px var(--shadow); border-top: 4px solid var(--primary-red);
+        }
+        .card-title { font-size: 18px; font-weight: 700; margin-bottom: 16px; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .btn-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 12px; }
+        .btn-option {
+            padding: 16px; border: 2px solid var(--border-light); border-radius: 12px;
+            text-align: center; cursor: pointer; background: white; font-weight: 600;
+            font-family: Georgia, serif; transition: all 0.3s;
+        }
+        .btn-option:hover { border-color: var(--light-blue); }
+        .btn-option.selected { border-color: var(--primary-red); background: rgba(230,57,70,0.05); }
+        .slider {
+            width: 100%; height: 8px; border-radius: 5px; background: var(--border-light);
+            outline: none; -webkit-appearance: none;
+        }
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none; width: 24px; height: 24px; border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-red), #C1121F); cursor: pointer;
+            box-shadow: 0 2px 8px rgba(230,57,70,0.4);
+        }
+    </style>
+</head>
+<body>
+    <div class="top-nav">
+        <div style="display: flex; align-items: center;">
+            <a href="admin.html" class="back-btn">← Back</a>
+            <img src="RR_Logo.png" alt="RosterReady" class="nav-logo">
+            <div class="page-title">Tryout Designer</div>
+        </div>
+        <a href="index.html" class="back-btn">Sign Out</a>
+    </div>
+
+    <div class="content">
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('setup')">Setup</button>
+            <button class="tab" onclick="switchTab('stations')">Stations</button>
+            <button class="tab" onclick="switchTab('players')">Players</button>
+            <button class="tab" onclick="switchTab('messaging')">Messaging</button>
+        </div>
+
+        <!-- Setup Tab -->
+        <div id="setupContent" class="tab-content active">
+            <div class="card">
+                <h3 class="card-title">Tryout Setup</h3>
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; font-size: 14px; font-weight: 600; margin-bottom: 8px;">
+                        Number of Players: <span id="playerCount" style="color: var(--primary-red); font-weight: 700;">50</span>
+                    </label>
+                    <input type="range" min="10" max="200" value="50" class="slider" oninput="document.getElementById('playerCount').textContent = this.value">
+                    <div style="display: flex; justify-content: space-between; font-size: 12px; color: var(--text-medium); margin-top: 4px;">
+                        <span>10</span><span>200</span>
+                    </div>
+                </div>
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; font-size: 14px; font-weight: 600; margin-bottom: 8px;">Age Level</label>
+                    <div class="btn-grid">
+                        <div class="btn-option selected" onclick="selectOption(this)">8U</div>
+                        <div class="btn-option" onclick="selectOption(this)">10U</div>
+                        <div class="btn-option" onclick="selectOption(this)">12U</div>
+                        <div class="btn-option" onclick="selectOption(this)">14U</div>
+                        <div class="btn-option" onclick="selectOption(this)">16U</div>
+                        <div class="btn-option" onclick="selectOption(this)">18U</div>
+                    </div>
+                </div>
+                <button style="padding: 14px 32px; background: linear-gradient(135deg, var(--primary-red), #C1121F); color: white; border: none; border-radius: 12px; font-weight: 600; font-family: Georgia, serif; cursor: pointer;" onclick="alert('Tryout initialized!')">
+                    Initialize Tryout
+                </button>
+            </div>
+        </div>
+
+        <!-- Stations Tab -->
+        <div id="stationsContent" class="tab-content">
+            <div class="card">
+                <h3 class="card-title">Station Management</h3>
+                <p style="background: var(--off-white); padding: 20px; border-radius: 12px; text-align: center; color: var(--text-medium);">
+                    Stations configuration coming soon. This will allow you to create and manage evaluation stations.
+                </p>
+            </div>
+        </div>
+
+        <!-- Players Tab -->
+        <div id="playersContent" class="tab-content">
+            <div class="card">
+                <h3 class="card-title">Player Roster</h3>
+                <div style="display: flex; gap: 12px; margin-bottom: 20px;">
+                    <button style="flex: 1; padding: 12px; background: var(--primary-red); color: white; border: none; border-radius: 8px; font-weight: 600; font-family: Georgia, serif; cursor: pointer;" onclick="alert('Import CSV feature coming soon!')">
+                        Import CSV
+                    </button>
+                    <button style="flex: 1; padding: 12px; background: var(--primary-red); color: white; border: none; border-radius: 8px; font-weight: 600; font-family: Georgia, serif; cursor: pointer;" onclick="alert('Add Player feature coming soon!')">
+                        Add Player
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Messaging Tab -->
+        <div id="messagingContent" class="tab-content">
+            <div class="card">
+                <h3 class="card-title">Send Group Message</h3>
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; font-size: 14px; font-weight: 600; margin-bottom: 8px;">Subject</label>
+                    <input type="text" placeholder="Message subject" style="width: 100%; padding: 14px; border: 2px solid var(--border-light); border-radius: 12px; font-family: Georgia, serif;">
+                </div>
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; font-size: 14px; font-weight: 600; margin-bottom: 8px;">Message</label>
+                    <textarea placeholder="Type your message..." style="width: 100%; min-height: 150px; padding: 14px; border: 2px solid var(--border-light); border-radius: 12px; font-family: Georgia, serif; resize: vertical;"></textarea>
+                </div>
+                <button style="width: 100%; padding: 14px; background: linear-gradient(135deg, var(--primary-red), #C1121F); color: white; border: none; border-radius: 12px; font-weight: 600; font-family: Georgia, serif; cursor: pointer;" onclick="alert('Message sent successfully!')">
+                    Send Message
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            event.target.classList.add('active');
+            document.getElementById(tabName + 'Content').classList.add('active');
+        }
+        function selectOption(el) {
+            el.parentElement.querySelectorAll('.btn-option').forEach(b => b.classList.remove('selected'));
+            el.classList.add('selected');
+        }
+    </script>
+</body>
+</html>
