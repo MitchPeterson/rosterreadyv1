@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Event - RosterReady</title>
+    <style>
+        :root {
+            --primary-red: #E63946; --accent-purple: #9B59B6; --accent-teal: #1ABC9C;
+            --white: #FFFFFF; --off-white: #F8F9FA; --text-dark: #2C3E50;
+            --text-medium: #5A6C7D; --border-light: #E8EAF0; --shadow: rgba(0, 0, 0, 0.1);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: Georgia, 'Times New Roman', Times, serif;
+            background: linear-gradient(135deg, #F8F9FA 0%, #E8EEF5 100%);
+            color: var(--text-dark); min-height: 100vh;
+        }
+        .top-nav {
+            background: white; border-radius: 20px; padding: 16px 32px; margin: 20px;
+            box-shadow: 0 4px 16px var(--shadow); display: flex; justify-content: space-between; align-items: center;
+        }
+        .nav-logo { width: 50px; height: 50px; margin-right: 16px; }
+        .back-btn {
+            padding: 10px 20px; background: var(--off-white); border: 2px solid var(--border-light);
+            border-radius: 12px; font-weight: 600; text-decoration: none; color: var(--text-dark);
+            font-family: Georgia, serif;
+        }
+        .content { max-width: 900px; margin: 0 auto; padding: 0 20px 40px; }
+        
+        /* Progress Steps */
+        .progress-container {
+            background: white; border-radius: 20px; padding: 24px; margin-bottom: 24px;
+            box-shadow: 0 4px 16px var(--shadow);
+        }
+        .progress-steps {
+            display: flex; justify-content: space-between; align-items: center; position: relative;
+        }
+        .progress-line {
+            position: absolute; top: 20px; left: 0; right: 0; height: 4px;
+            background: var(--border-light); z-index: 0;
+        }
+        .progress-line-fill {
+            height: 100%; background: var(--primary-red); transition: width 0.3s ease;
+        }
+        .step {
+            position: relative; z-index: 1; text-align: center; flex: 1;
+        }
+        .step-circle {
+            width: 40px; height: 40px; border-radius: 50%; background: var(--border-light);
+            margin: 0 auto 8px; display: flex; align-items: center; justify-content: center;
+            font-weight: 700; color: var(--text-medium); transition: all 0.3s ease;
+        }
+        .step.active .step-circle { background: var(--primary-red); color: white; }
+        .step.completed .step-circle { background: var(--accent-teal); color: white; }
+        .step-label { font-size: 12px; color: var(--text-medium); font-weight: 600; }
+        .step.active .step-label { color: var(--primary-red); }
+        
+        /* Card */
+        .card {
+            background: white; border-radius: 20px; padding: 40px;
+            box-shadow: 0 6px 20px var(--shadow); border-top: 4px solid var(--primary-red);
+        }
+        .card-title { font-size: 24px; font-weight: 800; margin-bottom: 24px; }
+        
+        /* Form Elements */
+        .form-group { margin-bottom: 24px; }
+        .form-label {
+            display: block; font-size: 14px; font-weight: 600; margin-bottom: 8px;
+        }
+        .form-input {
+            width: 100%; padding: 14px; border: 2px solid var(--border-light);
+            border-radius: 12px; font-family: Georgia, serif; font-size: 15px;
+        }
+        .form-input:focus { outline: none; border-color: var(--primary-red); }
+        
+        /* Age Level Checkboxes */
+        .age-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 12px;
+        }
+        .age-checkbox {
+            display: flex; align-items: center; gap: 8px; padding: 12px 16px;
+            background: var(--off-white); border: 2px solid var(--border-light);
+            border-radius: 8px; cursor: pointer; transition: all 0.3s ease;
+        }
+        .age-checkbox:hover { border-color: var(--primary-red); }
+        .age-checkbox input:checked + span { font-weight: 700; color: var(--primary-red); }
+        
+        /* Station Cards */
+        .station-card {
+            background: var(--off-white); border: 2px solid var(--border-light);
+            border-radius: 12px; padding: 16px; margin-bottom: 12px;
+        }
+        .station-header {
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .toggle-switch {
+            position: relative; display: inline-block; width: 50px; height: 26px;
+        }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        .toggle-slider {
+            position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #ccc; transition: .4s; border-radius: 26px;
+        }
+        .toggle-slider:before {
+            position: absolute; content: ""; height: 18px; width: 18px; left: 4px; bottom: 4px;
+            background-color: white; transition: .4s; border-radius: 50%;
+        }
+        input:checked + .toggle-slider { background-color: var(--accent-teal); }
+        input:checked + .toggle-slider:before { transform: translateX(24px); }
+        
+        /* Buttons */
+        .btn-nav {
+            display: flex; justify-content: space-between; gap: 12px; margin-top: 32px;
+        }
+        .btn {
+            padding: 14px 32px; border-radius: 12px; font-weight: 600;
+            font-family: Georgia, serif; cursor: pointer; font-size: 16px;
+            border: none; transition: all 0.3s ease;
+        }
+        .btn-back {
+            background: var(--off-white); color: var(--text-dark);
+            border: 2px solid var(--border-light);
+        }
+        .btn-next {
+            background: linear-gradient(135deg, var(--primary-red), #C1121F);
+            color: white; flex: 1;
+        }
+        .btn-next:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(230,57,70,0.3); }
+        
+        /* Hide/Show Steps */
+        .step-content { display: none; }
+        .step-content.active { display: block; }
+    </style>
+</head>
+<body>
+    <div class="top-nav">
+        <div style="display: flex; align-items: center;">
+            <a href="event-list.html" class="back-btn">← Cancel</a>
+            <img src="RR_Logo.png" alt="RosterReady" class="nav-logo">
+            <div style="font-size: 20px; font-weight: 800;">Create New Event</div>
+        </div>
+        <a href="index.html" class="back-btn">Sign Out</a>
+    </div>
+
+    <!-- Progress Steps -->
+    <div class="content">
+        <div class="progress-container">
+            <div class="progress-steps">
+                <div class="progress-line">
+                    <div class="progress-line-fill" id="progressFill" style="width: 20%;"></div>
+                </div>
+                <div class="step active" data-step="1">
+                    <div class="step-circle">1</div>
+                    <div class="step-label">Event Basics</div>
+                </div>
+                <div class="step" data-step="2">
+                    <div class="step-circle">2</div>
+                    <div class="step-label">Stations</div>
+                </div>
+                <div class="step" data-step="3">
+                    <div class="step-circle">3</div>
+                    <div class="step-label">Players</div>
+                </div>
+                <div class="step" data-step="4">
+                    <div class="step-circle">4</div>
+                    <div class="step-label">Staff</div>
+                </div>
+                <div class="step" data-step="5">
+                    <div class="step-circle">5</div>
+                    <div class="step-label">Review</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 1: Event Basics -->
+        <div class="step-content active" id="step1">
+            <div class="card">
+                <h2 class="card-title">Step 1: Event Basics</h2>
+                
+                <div class="form-group">
+                    <label class="form-label">Event Name</label>
+                    <input type="text" class="form-input" id="eventName" placeholder="e.g., Spring 2024 Tryouts">
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px;">
+                    <div>
+                        <label class="form-label">Event Date</label>
+                        <input type="date" class="form-input" id="eventDate">
+                    </div>
+                    <div>
+                        <label class="form-label">Start Time</label>
+                        <input type="time" class="form-input" id="startTime" value="09:00">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">End Time</label>
+                    <input type="time" class="form-input" id="endTime" value="12:00">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Venue Name</label>
+                    <input type="text" class="form-input" id="venueName" placeholder="e.g., Rosemount High School Field">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Venue Address</label>
+                    <input type="text" class="form-input" id="venueAddress" placeholder="e.g., 3335 142nd St W, Rosemount, MN 55068">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Age Levels (select all that apply)</label>
+                    <div class="age-grid">
+                        <label class="age-checkbox">
+                            <input type="checkbox" value="8U"><span>8U</span>
+                        </label>
+                        <label class="age-checkbox">
+                            <input type="checkbox" value="10U"><span>10U</span>
+                        </label>
+                        <label class="age-checkbox">
+                            <input type="checkbox" value="12U" checked><span>12U</span>
+                        </label>
+                        <label class="age-checkbox">
+                            <input type="checkbox" value="14U" checked><span>14U</span>
+                        </label>
+                        <label class="age-checkbox">
+                            <input type="checkbox" value="16U"><span>16U</span>
+                        </label>
+                        <label class="age-checkbox">
+                            <input type="checkbox" value="18U"><span>18U</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Sport</label>
+                    <div style="display: flex; gap: 12px;">
+                        <label style="flex: 1; display: flex; align-items: center; gap: 8px; padding: 12px; background: var(--off-white); border: 2px solid var(--primary-red); border-radius: 8px; cursor: pointer;">
+                            <input type="radio" name="sport" value="softball" checked>
+                            <span style="font-weight: 600;">Softball</span>
+                        </label>
+                        <label style="flex: 1; display: flex; align-items: center; gap: 8px; padding: 12px; background: var(--off-white); border: 2px solid var(--border-light); border-radius: 8px; cursor: pointer;">
+                            <input type="radio" name="sport" value="baseball">
+                            <span style="font-weight: 600;">Baseball</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="btn-nav">
+                    <div></div>
+                    <button class="btn btn-next" onclick="nextStep(1)">Next: Configure Stations →</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 2: Stations (continuing in next message due to length) -->
+        <!-- Step 2: Stations -->
+        <div class="step-content" id="step2">
+            <div class="card">
+                <h2 class="card-title">Step 2: Station Configuration</h2>
+                <p style="background: var(--off-white); padding: 16px; border-radius: 12px; margin-bottom: 24px; color: var(--text-medium);">
+                    Select which stations to include in this event. Stations will use age-appropriate drills automatically.
+                </p>
+
+                <div class="station-card">
+                    <div class="station-header">
+                        <div>
+                            <div style="font-weight: 700; margin-bottom: 4px;">⚾ Hitting</div>
+                            <div style="font-size: 13px; color: var(--text-medium);">Swing mechanics, contact quality, power</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" checked data-station="hitting">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="station-card">
+                    <div class="station-header">
+                        <div>
+                            <div style="font-weight: 700; margin-bottom: 4px;">🧤 Infield</div>
+                            <div style="font-size: 13px; color: var(--text-medium);">Fielding mechanics, footwork, arm strength</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" checked data-station="infield">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="station-card">
+                    <div class="station-header">
+                        <div>
+                            <div style="font-weight: 700; margin-bottom: 4px;">🥎 Outfield</div>
+                            <div style="font-size: 13px; color: var(--text-medium);">Catching ability, routes, throw accuracy</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" checked data-station="outfield">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="station-card">
+                    <div class="station-header">
+                        <div>
+                            <div style="font-weight: 700; margin-bottom: 4px;">⚡ Pitching</div>
+                            <div style="font-size: 13px; color: var(--text-medium);">Velocity, accuracy, pitch mix (age-appropriate)</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" data-station="pitching">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="station-card">
+                    <div class="station-header">
+                        <div>
+                            <div style="font-weight: 700; margin-bottom: 4px;">🏃 Base Running</div>
+                            <div style="font-size: 13px; color: var(--text-medium);">Speed, technique, decision making</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" checked data-station="baserunning">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="btn-nav">
+                    <button class="btn btn-back" onclick="prevStep(2)">← Back</button>
+                    <button class="btn btn-next" onclick="nextStep(2)">Next: Add Players →</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 3: Players -->
+        <div class="step-content" id="step3">
+            <div class="card">
+                <h2 class="card-title">Step 3: Players</h2>
+                
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 24px;">
+                    <button class="btn" style="background: var(--accent-purple); color: white;" onclick="alert('CSV Import feature coming soon!')">
+                        Import CSV
+                    </button>
+                    <button class="btn" style="background: var(--accent-teal); color: white;" onclick="alert('Add Player feature coming soon!')">
+                        Add Manually
+                    </button>
+                    <button class="btn" style="background: var(--off-white); color: var(--text-dark); border: 2px solid var(--border-light);" onclick="alert('Copy from previous event feature coming soon!')">
+                        Copy from Event
+                    </button>
+                </div>
+
+                <div style="background: var(--off-white); padding: 40px; border-radius: 12px; text-align: center; color: var(--text-medium);">
+                    <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="opacity: 0.3; margin-bottom: 16px;">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                    </svg>
+                    <div style="font-weight: 600; margin-bottom: 8px;">No players added yet</div>
+                    <div>Use the buttons above to add players to this event</div>
+                </div>
+
+                <div class="btn-nav">
+                    <button class="btn btn-back" onclick="prevStep(3)">← Back</button>
+                    <button class="btn btn-next" onclick="nextStep(3)">Next: Assign Staff →</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 4: Staff -->
+        <div class="step-content" id="step4">
+            <div class="card">
+                <h2 class="card-title">Step 4: Staff Assignments</h2>
+                <p style="background: rgba(155,89,182,0.1); padding: 16px; border-radius: 12px; margin-bottom: 24px; color: var(--text-dark); border-left: 4px solid var(--accent-purple);">
+                    <strong>Note:</strong> Staff are selected from your admin's staff pool (not association-specific).
+                </p>
+
+                <div id="staffAssignments">
+                    <div style="margin-bottom: 20px;">
+                        <label class="form-label">Hitting Station (2 evaluators)</label>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                            <select class="form-input">
+                                <option>Coach Smith</option>
+                                <option>Coach Martinez</option>
+                                <option>Coach Johnson</option>
+                                <option>Coach Davis</option>
+                            </select>
+                            <select class="form-input">
+                                <option>Coach Martinez</option>
+                                <option>Coach Smith</option>
+                                <option>Coach Johnson</option>
+                                <option>Coach Davis</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 20px;">
+                        <label class="form-label">Infield Station (2 evaluators)</label>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                            <select class="form-input">
+                                <option>Coach Johnson</option>
+                                <option>Coach Smith</option>
+                                <option>Coach Martinez</option>
+                            </select>
+                            <select class="form-input">
+                                <option>Coach Davis</option>
+                                <option>Coach Smith</option>
+                                <option>Coach Martinez</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 20px;">
+                        <label class="form-label">Outfield Station (2 evaluators)</label>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                            <select class="form-input">
+                                <option>Coach Williams</option>
+                                <option>Coach Smith</option>
+                            </select>
+                            <select class="form-input">
+                                <option>Coach Thompson</option>
+                                <option>Coach Martinez</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="btn-nav">
+                    <button class="btn btn-back" onclick="prevStep(4)">← Back</button>
+                    <button class="btn btn-next" onclick="nextStep(4)">Review & Launch →</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 5: Review -->
+        <div class="step-content" id="step5">
+            <div class="card">
+                <h2 class="card-title">Step 5: Review & Launch</h2>
+                
+                <div style="background: var(--off-white); padding: 24px; border-radius: 12px; margin-bottom: 24px;">
+                    <h4 style="font-weight: 700; margin-bottom: 16px;">Event Summary</h4>
+                    <div style="display: grid; gap: 12px;">
+                        <div><strong>Event Name:</strong> <span id="reviewEventName">Spring 2024 Tryouts</span></div>
+                        <div><strong>Date:</strong> <span id="reviewDate">March 15, 2024</span></div>
+                        <div><strong>Time:</strong> <span id="reviewTime">9:00 AM - 12:00 PM</span></div>
+                        <div><strong>Venue:</strong> <span id="reviewVenue">Rosemount High School Field</span></div>
+                        <div><strong>Age Levels:</strong> <span id="reviewAgeLevels">12U, 14U</span></div>
+                        <div><strong>Sport:</strong> <span id="reviewSport">Softball</span></div>
+                    </div>
+                </div>
+
+                <div style="background: rgba(26,188,156,0.1); padding: 24px; border-radius: 12px; margin-bottom: 24px; border-left: 4px solid var(--accent-teal);">
+                    <h4 style="font-weight: 700; margin-bottom: 16px; color: var(--accent-teal);">Configuration</h4>
+                    <div style="display: grid; gap: 12px;">
+                        <div><strong>Stations:</strong> <span id="reviewStations">5 configured</span></div>
+                        <div><strong>Players:</strong> <span id="reviewPlayers">0 registered</span></div>
+                        <div><strong>Staff:</strong> <span id="reviewStaff">12 assigned</span></div>
+                    </div>
+                </div>
+
+                <div class="btn-nav">
+                    <button class="btn btn-back" onclick="prevStep(5)">← Back</button>
+                    <button class="btn" style="background: var(--accent-purple); color: white; flex: 1;" onclick="saveAsDraft()">Save as Draft</button>
+                    <button class="btn btn-next" style="flex: 1;" onclick="launchEvent()">Launch Event</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentStep = 1;
+
+        function nextStep(step) {
+            if (step < 5) {
+                currentStep = step + 1;
+                updateStepDisplay();
+            }
+        }
+
+        function prevStep(step) {
+            if (step > 1) {
+                currentStep = step - 1;
+                updateStepDisplay();
+            }
+        }
+
+        function updateStepDisplay() {
+            // Hide all step contents
+            document.querySelectorAll('.step-content').forEach(el => el.classList.remove('active'));
+            // Show current step
+            document.getElementById('step' + currentStep).classList.add('active');
+
+            // Update progress steps
+            document.querySelectorAll('.step').forEach((el, index) => {
+                el.classList.remove('active', 'completed');
+                if (index + 1 < currentStep) {
+                    el.classList.add('completed');
+                } else if (index + 1 === currentStep) {
+                    el.classList.add('active');
+                }
+            });
+
+            // Update progress bar
+            const progress = (currentStep - 1) * 25;
+            document.getElementById('progressFill').style.width = progress + '%';
+
+            // Update review data when reaching step 5
+            if (currentStep === 5) {
+                updateReviewData();
+            }
+        }
+
+        function updateReviewData() {
+            document.getElementById('reviewEventName').textContent = document.getElementById('eventName').value || 'Not specified';
+            document.getElementById('reviewDate').textContent = document.getElementById('eventDate').value || 'Not specified';
+            document.getElementById('reviewTime').textContent = 
+                (document.getElementById('startTime').value || '9:00 AM') + ' - ' + 
+                (document.getElementById('endTime').value || '12:00 PM');
+            document.getElementById('reviewVenue').textContent = document.getElementById('venueName').value || 'Not specified';
+            
+            const ageLevels = Array.from(document.querySelectorAll('.age-checkbox input:checked'))
+                .map(cb => cb.value).join(', ') || 'None selected';
+            document.getElementById('reviewAgeLevels').textContent = ageLevels;
+            
+            const sport = document.querySelector('input[name="sport"]:checked').value;
+            document.getElementById('reviewSport').textContent = sport.charAt(0).toUpperCase() + sport.slice(1);
+            
+            const stationCount = document.querySelectorAll('[data-station]:checked').length;
+            document.getElementById('reviewStations').textContent = stationCount + ' configured';
+        }
+
+        function saveAsDraft() {
+            alert('Event saved as draft!\n\nYou can continue editing this event later from the event list.');
+            window.location.href = 'event-list.html';
+        }
+
+        function launchEvent() {
+            const eventName = document.getElementById('eventName').value || 'Unnamed Event';
+            alert(`🎉 Event "${eventName}" launched successfully!\n\nYour event is now live and ready for evaluations.`);
+            window.location.href = 'event-dashboard.html?event=new';
+        }
+    </script>
+</body>
+</html>

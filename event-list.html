@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Events - RosterReady</title>
+    <style>
+        :root {
+            --primary-red: #E63946; --accent-purple: #9B59B6; --accent-teal: #1ABC9C;
+            --white: #FFFFFF; --off-white: #F8F9FA; --text-dark: #2C3E50;
+            --text-medium: #5A6C7D; --border-light: #E8EAF0; --shadow: rgba(0, 0, 0, 0.1);
+            --success-green: #27AE60; --warning-orange: #F39C12;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: Georgia, 'Times New Roman', Times, serif;
+            background: linear-gradient(135deg, #F8F9FA 0%, #E8EEF5 100%);
+            color: var(--text-dark); min-height: 100vh;
+        }
+        .top-nav {
+            background: white; border-radius: 20px; padding: 16px 32px; margin: 20px;
+            box-shadow: 0 4px 16px var(--shadow); display: flex; justify-content: space-between; align-items: center;
+        }
+        .nav-logo { width: 50px; height: 50px; margin-right: 16px; }
+        .back-btn {
+            padding: 10px 20px; background: var(--off-white); border: 2px solid var(--border-light);
+            border-radius: 12px; font-weight: 600; text-decoration: none; color: var(--text-dark);
+            font-family: Georgia, serif; margin-right: 16px;
+        }
+        .page-title { font-size: 20px; font-weight: 800; }
+        .content { max-width: 1200px; margin: 0 auto; padding: 0 20px 20px; }
+        .card {
+            background: white; border-radius: 20px; padding: 32px; margin-bottom: 24px;
+            box-shadow: 0 6px 20px var(--shadow);
+        }
+        .section-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 20px; padding-bottom: 12px; border-bottom: 2px solid var(--border-light);
+        }
+        .section-title { font-size: 18px; font-weight: 700; }
+        .event-card {
+            background: var(--off-white); border: 2px solid var(--border-light);
+            border-radius: 12px; padding: 20px; margin-bottom: 16px;
+            transition: all 0.3s ease; cursor: pointer;
+        }
+        .event-card:hover { border-color: var(--primary-red); box-shadow: 0 4px 12px rgba(230,57,70,0.2); }
+        .event-header { display: flex; justify-content: space-between; align-items: start; margin-bottom: 12px; }
+        .event-name { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+        .event-date { color: var(--text-medium); font-size: 14px; }
+        .event-meta { display: flex; gap: 16px; font-size: 13px; color: var(--text-medium); margin-top: 12px; }
+        .badge {
+            padding: 4px 12px; border-radius: 6px; font-size: 12px; font-weight: 600;
+            text-transform: uppercase; display: inline-block;
+        }
+        .badge-active { background: rgba(39,174,96,0.1); color: var(--success-green); }
+        .badge-draft { background: rgba(243,156,18,0.1); color: var(--warning-orange); }
+        .badge-completed { background: rgba(93,109,126,0.1); color: var(--text-medium); }
+        .btn-primary {
+            padding: 14px 24px; background: linear-gradient(135deg, var(--primary-red), #C1121F);
+            color: white; border: none; border-radius: 12px; font-weight: 600;
+            font-family: Georgia, serif; cursor: pointer; text-decoration: none; display: inline-block;
+        }
+        .empty-state {
+            text-align: center; padding: 60px 20px; color: var(--text-medium);
+        }
+        .empty-state svg { width: 80px; height: 80px; opacity: 0.3; margin-bottom: 16px; }
+    </style>
+</head>
+<body>
+    <div class="top-nav">
+        <div style="display: flex; align-items: center;">
+            <a href="admin.html" class="back-btn">← Back to Organizations</a>
+            <img src="RR_Logo.png" alt="RosterReady" class="nav-logo">
+            <div class="page-title" id="orgName">Rosemount Thunder Softball</div>
+        </div>
+        <a href="index.html" class="back-btn">Sign Out</a>
+    </div>
+
+    <div class="content">
+        <!-- Upcoming Events -->
+        <div class="card">
+            <div class="section-header">
+                <h3 class="section-title">📅 Upcoming Events</h3>
+                <a href="event-create.html" class="btn-primary">+ Create New Event</a>
+            </div>
+
+            <div class="event-card" onclick="window.location.href='event-dashboard.html?event=spring2024'">
+                <div class="event-header">
+                    <div>
+                        <div class="event-name">Spring 2024 Tryouts</div>
+                        <div class="event-date">March 15, 2024 • 9:00 AM - 12:00 PM</div>
+                    </div>
+                    <span class="badge badge-draft">DRAFT</span>
+                </div>
+                <div style="color: var(--text-medium); margin-bottom: 8px;">
+                    📍 Rosemount High School Field
+                </div>
+                <div class="event-meta">
+                    <span><strong>Age Levels:</strong> 12U, 14U</span>
+                    <span><strong>Players:</strong> 50 registered</span>
+                    <span><strong>Stations:</strong> 6 configured</span>
+                    <span><strong>Staff:</strong> 12 assigned</span>
+                </div>
+            </div>
+
+            <div class="event-card" onclick="window.location.href='event-dashboard.html?event=summer2024'">
+                <div class="event-header">
+                    <div>
+                        <div class="event-name">Summer Showcase</div>
+                        <div class="event-date">June 10, 2024 • 8:00 AM - 2:00 PM</div>
+                    </div>
+                    <span class="badge badge-draft">DRAFT</span>
+                </div>
+                <div style="color: var(--text-medium); margin-bottom: 8px;">
+                    📍 Apple Valley Sports Complex
+                </div>
+                <div class="event-meta">
+                    <span><strong>Age Levels:</strong> 10U</span>
+                    <span><strong>Players:</strong> 0 registered</span>
+                    <span><strong>Stations:</strong> Not configured</span>
+                    <span><strong>Staff:</strong> Not assigned</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Active Events -->
+        <div class="card">
+            <div class="section-header">
+                <h3 class="section-title">🔴 Active Events (In Progress)</h3>
+            </div>
+            <div class="empty-state">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <path d="M12 6v6l4 2"/>
+                </svg>
+                <p>No active events at this time</p>
+            </div>
+        </div>
+
+        <!-- Past Events -->
+        <div class="card">
+            <div class="section-header">
+                <h3 class="section-title">📊 Past Events</h3>
+            </div>
+
+            <div class="event-card" onclick="window.location.href='event-dashboard.html?event=fall2023'">
+                <div class="event-header">
+                    <div>
+                        <div class="event-name">Fall 2023 Tryouts</div>
+                        <div class="event-date">September 20, 2023 • 9:00 AM - 12:00 PM</div>
+                    </div>
+                    <span class="badge badge-completed">COMPLETED</span>
+                </div>
+                <div style="color: var(--text-medium); margin-bottom: 8px;">
+                    📍 Rosemount High School Field
+                </div>
+                <div class="event-meta">
+                    <span><strong>Age Levels:</strong> 12U, 14U</span>
+                    <span><strong>Players:</strong> 48 evaluated</span>
+                    <span><strong>Completion:</strong> 100%</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Get organization name from URL parameter
+        const urlParams = new URLSearchParams(window.location.search);
+        const orgName = urlParams.get('org') || 'Rosemount Thunder Softball';
+        document.getElementById('orgName').textContent = orgName;
+    </script>
+</body>
+</html>
