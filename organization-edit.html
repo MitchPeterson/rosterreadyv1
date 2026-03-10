@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RosterReady – Edit Organization</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --red:#E63946;--dred:#C1121F;--blue:#4A90E2;
+  --teal:#1ABC9C;--dark:#1a1a2e;--mid:#2d3748;
+  --light:#f7f9fc;--border:#e2e8f0;--shadow:0 4px 24px rgba(0,0,0,.08);
+}
+body{font-family:Georgia,'Times New Roman',serif;background:var(--light);color:var(--mid)}
+
+nav{background:#fff;border-bottom:2px solid var(--border);padding:0 32px;display:flex;align-items:center;justify-content:space-between;height:64px;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.06)}
+.nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none}
+.nav-logo img{height:38px;object-fit:contain}
+.nav-logo span{font-size:1.1rem;font-weight:700;letter-spacing:.5px;color:var(--dark)}
+.nav-actions{display:flex;align-items:center;gap:12px}
+.btn-sm{padding:8px 16px;border-radius:7px;font-family:Georgia,serif;font-size:.85rem;font-weight:700;cursor:pointer;border:none;transition:.2s;text-decoration:none;display:inline-flex;align-items:center;gap:6px}
+.btn-outline{background:#fff;border:2px solid var(--border);color:var(--mid)}
+.btn-outline:hover{border-color:var(--blue);color:var(--blue)}
+.btn-primary{background:var(--blue);color:#fff}
+.btn-primary:hover{background:#3a7bd5}
+.btn-teal{background:var(--teal);color:#fff}
+.btn-teal:hover{background:#17a589}
+
+.page-hero{background:linear-gradient(135deg,var(--dark),#1F4788);color:#fff;padding:24px 40px;display:flex;align-items:center;gap:16px}
+.page-hero-icon{width:48px;height:48px;background:rgba(255,255,255,.12);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0}
+.page-hero h1{font-size:1.4rem;font-weight:700;margin-bottom:4px}
+.page-hero p{font-size:.88rem;opacity:.75}
+
+/* EDIT LAYOUT */
+.edit-layout{display:grid;grid-template-columns:220px 1fr;gap:0;min-height:calc(100vh - 120px)}
+
+.edit-nav{background:#fff;border-right:2px solid var(--border);padding:24px 16px}
+.edit-nav h3{font-size:.72rem;letter-spacing:1.5px;text-transform:uppercase;color:#94a3b8;margin-bottom:14px;padding:0 8px}
+.edit-nav-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;cursor:pointer;transition:.2s;font-size:.88rem;font-weight:600;color:#64748b;margin-bottom:2px}
+.edit-nav-item:hover{background:var(--light);color:var(--mid)}
+.edit-nav-item.active{background:#EBF3FB;color:var(--blue)}
+
+.edit-content{padding:32px 40px}
+.section-pane{display:none}.section-pane.active{display:block}
+.pane-title{font-size:1.3rem;font-weight:700;color:var(--dark);margin-bottom:4px}
+.pane-sub{font-size:.88rem;color:#64748b;margin-bottom:28px}
+
+/* FORM */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px}
+.form-grid.full{grid-template-columns:1fr}
+.form-grid.three{grid-template-columns:1fr 1fr 1fr}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{font-size:.78rem;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--mid)}
+.field label span{color:var(--red);margin-left:2px}
+.field input,.field select,.field textarea{padding:10px 13px;border:2px solid var(--border);border-radius:8px;font-family:Georgia,serif;font-size:.92rem;color:var(--dark);transition:.2s;background:#fff}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--blue);outline:none;box-shadow:0 0 0 3px rgba(74,144,226,.1)}
+.field textarea{resize:vertical;min-height:90px}
+.field .hint{font-size:.76rem;color:#94a3b8}
+
+/* LOGO UPLOAD */
+.logo-row{display:flex;align-items:center;gap:24px;padding:20px;background:var(--light);border:2px solid var(--border);border-radius:12px;margin-bottom:20px}
+.logo-current{width:72px;height:72px;border-radius:12px;overflow:hidden;background:#fff;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.logo-current img{width:100%;height:100%;object-fit:contain}
+.logo-actions{display:flex;flex-direction:column;gap:8px}
+.logo-actions h4{font-weight:700;font-size:.9rem;color:var(--dark)}
+.logo-actions p{font-size:.8rem;color:#64748b}
+.logo-btn-row{display:flex;gap:8px;margin-top:4px}
+
+/* SPORT / AGE TOGGLES */
+.toggle-group{display:flex;gap:10px;flex-wrap:wrap}
+.toggle-chip{padding:9px 18px;border:2px solid var(--border);border-radius:8px;cursor:pointer;font-family:Georgia,serif;font-size:.88rem;font-weight:600;color:#64748b;background:#fff;transition:.2s}
+.toggle-chip:hover{border-color:var(--blue);color:var(--blue)}
+.toggle-chip.active{border-color:var(--blue);background:var(--blue);color:#fff}
+
+/* SECTION DIVIDER */
+.divider{border:none;border-top:2px solid var(--border);margin:24px 0}
+
+/* SAVE BAR */
+.save-bar{position:sticky;bottom:0;background:#fff;border-top:2px solid var(--border);padding:16px 40px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 -4px 20px rgba(0,0,0,.06);z-index:50}
+.save-bar p{font-size:.85rem;color:#64748b}
+.save-bar-actions{display:flex;gap:10px}
+.btn-save{padding:11px 28px;background:var(--teal);color:#fff;border:none;border-radius:8px;font-family:Georgia,serif;font-size:.95rem;font-weight:700;cursor:pointer;transition:.2s}
+.btn-save:hover{background:#17a589;transform:translateY(-1px)}
+
+/* TOAST */
+.toast{position:fixed;bottom:80px;right:24px;background:var(--dark);color:#fff;padding:13px 20px;border-radius:10px;font-size:.88rem;font-weight:600;display:none;z-index:999;box-shadow:var(--shadow)}
+.toast.show{display:block;animation:fadeInUp .3s ease}
+@keyframes fadeInUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+/* ADMIN TABLE */
+.admin-row{display:flex;align-items:center;gap:14px;padding:13px 0;border-bottom:1px solid var(--border)}
+.admin-row:last-child{border-bottom:none}
+.admin-avatar{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--blue),#2563EB);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.9rem;flex-shrink:0}
+.admin-info{flex:1}
+.admin-name{font-weight:700;color:var(--dark);font-size:.88rem}
+.admin-sub{font-size:.76rem;color:#64748b;margin-top:1px}
+.role-badge{padding:3px 9px;border-radius:20px;font-size:.72rem;font-weight:700}
+.role-owner{background:#FEE2E2;color:#991B1B}
+.role-admin{background:#DBEAFE;color:#1E40AF}
+.role-evaluator{background:#D1FAE5;color:#065F46}
+
+@media(max-width:768px){
+  .edit-layout{grid-template-columns:1fr}
+  .edit-nav{display:flex;flex-wrap:wrap;gap:4px;border-right:none;border-bottom:2px solid var(--border);padding:12px}
+  .edit-content{padding:20px}
+  .form-grid{grid-template-columns:1fr}
+  .form-grid.three{grid-template-columns:1fr 1fr}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="admin.html" class="nav-logo">
+    <img src="RR_Logo_2.png" alt="RosterReady">
+    <span>RosterReady</span>
+  </a>
+  <div class="nav-actions">
+    <a href="organization-details.html" class="btn-sm btn-outline">← Back to Org</a>
+  </div>
+</nav>
+
+<div class="page-hero">
+  <div class="page-hero-icon">✏️</div>
+  <div>
+    <h1>Edit Organization</h1>
+    <p>Rosemount Thunder Softball — update details, contacts, and settings</p>
+  </div>
+</div>
+
+<div class="edit-layout">
+  <!-- LEFT NAV -->
+  <div class="edit-nav">
+    <h3>Sections</h3>
+    <div class="edit-nav-item active" onclick="switchPane('basic',this)">🏢 Basic Info</div>
+    <div class="edit-nav-item" onclick="switchPane('location',this)">📍 Location</div>
+    <div class="edit-nav-item" onclick="switchPane('sports',this)">🥎 Sport & Ages</div>
+    <div class="edit-nav-item" onclick="switchPane('branding',this)">🎨 Logo & Branding</div>
+    <div class="edit-nav-item" onclick="switchPane('contacts',this)">👥 Contacts</div>
+    <div class="edit-nav-item" onclick="switchPane('preferences',this)">⚙️ Preferences</div>
+  </div>
+
+  <!-- EDIT CONTENT -->
+  <div class="edit-content">
+
+    <!-- BASIC INFO -->
+    <div class="section-pane active" id="pane-basic">
+      <div class="pane-title">Basic Information</div>
+      <div class="pane-sub">Core organization details visible across the platform.</div>
+
+      <div class="form-grid full">
+        <div class="field">
+          <label>Organization Name <span>*</span></label>
+          <input type="text" value="Rosemount Thunder Softball">
+        </div>
+      </div>
+      <div class="form-grid">
+        <div class="field">
+          <label>Short Name / Abbreviation</label>
+          <input type="text" value="Thunder / RTS">
+          <span class="hint">Used in reports and QR codes</span>
+        </div>
+        <div class="field">
+          <label>Status</label>
+          <select>
+            <option selected>Active</option>
+            <option>Inactive</option>
+            <option>Suspended</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-grid">
+        <div class="field">
+          <label>Website</label>
+          <input type="url" value="https://rosemountthunder.org">
+        </div>
+        <div class="field">
+          <label>General Phone</label>
+          <input type="tel" value="(651) 555-0100">
+        </div>
+      </div>
+      <div class="form-grid full">
+        <div class="field">
+          <label>General Email</label>
+          <input type="email" value="info@rts.org">
+        </div>
+      </div>
+      <hr class="divider">
+      <div class="form-grid full">
+        <div class="field">
+          <label>Program Description</label>
+          <textarea>Rosemount Thunder is one of the premier youth softball programs in the Twin Cities metro area. We offer competitive travel ball for ages 10U through 16U with a focus on player development, teamwork, and academic excellence.</textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- LOCATION -->
+    <div class="section-pane" id="pane-location">
+      <div class="pane-title">Location & Address</div>
+      <div class="pane-sub">Organization headquarters and primary tryout venue.</div>
+
+      <div class="form-grid full">
+        <div class="field">
+          <label>Street Address <span>*</span></label>
+          <input type="text" value="1200 Diamond Drive">
+        </div>
+      </div>
+      <div class="form-grid three">
+        <div class="field">
+          <label>City <span>*</span></label>
+          <input type="text" value="Rosemount">
+        </div>
+        <div class="field">
+          <label>State <span>*</span></label>
+          <select>
+            <option>MN</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>ZIP Code <span>*</span></label>
+          <input type="text" value="55068">
+        </div>
+      </div>
+      <hr class="divider">
+      <div class="form-grid full">
+        <div class="field">
+          <label>Primary Venue Name</label>
+          <input type="text" value="Rosemount Athletic Complex">
+          <span class="hint">Default location pre-filled when creating events</span>
+        </div>
+      </div>
+      <div class="form-grid full">
+        <div class="field">
+          <label>Venue Address (if different)</label>
+          <input type="text" placeholder="Leave blank if same as above">
+        </div>
+      </div>
+    </div>
+
+    <!-- SPORTS & AGES -->
+    <div class="section-pane" id="pane-sports">
+      <div class="pane-title">Sport & Age Levels</div>
+      <div class="pane-sub">Define what sports and age divisions this organization runs.</div>
+
+      <div class="field" style="margin-bottom:24px">
+        <label>Sport(s) Offered <span>*</span></label>
+        <div class="toggle-group">
+          <div class="toggle-chip active" onclick="this.classList.toggle('active')">🥎 Softball</div>
+          <div class="toggle-chip" onclick="this.classList.toggle('active')">⚾ Baseball</div>
+        </div>
+      </div>
+
+      <div class="field" style="margin-bottom:24px">
+        <label>Age Levels Offered</label>
+        <div class="toggle-group">
+          <div class="toggle-chip" onclick="this.classList.toggle('active')">8U</div>
+          <div class="toggle-chip active" onclick="this.classList.toggle('active')">10U</div>
+          <div class="toggle-chip active" onclick="this.classList.toggle('active')">12U</div>
+          <div class="toggle-chip active" onclick="this.classList.toggle('active')">14U</div>
+          <div class="toggle-chip active" onclick="this.classList.toggle('active')">16U</div>
+          <div class="toggle-chip" onclick="this.classList.toggle('active')">18U</div>
+          <div class="toggle-chip" onclick="this.classList.toggle('active')">HS Varsity</div>
+          <div class="toggle-chip" onclick="this.classList.toggle('active')">Open</div>
+        </div>
+        <span class="hint" style="margin-top:8px">These appear as defaults when creating new events.</span>
+      </div>
+    </div>
+
+    <!-- BRANDING -->
+    <div class="section-pane" id="pane-branding">
+      <div class="pane-title">Logo & Branding</div>
+      <div class="pane-sub">Upload the organization's logo. Appears on reports, player cards, and check-in sheets.</div>
+
+      <div class="logo-row">
+        <div class="logo-current">
+          <img src="RR_Logo_2.png" id="currentLogo" alt="Current Logo">
+        </div>
+        <div class="logo-actions">
+          <h4>Current Logo</h4>
+          <p>PNG, JPG, or SVG · Max 5MB · Recommended 300×300px</p>
+          <div class="logo-btn-row">
+            <button class="btn-sm btn-primary" onclick="document.getElementById('logoUploadEdit').click()">Upload New Logo</button>
+            <button class="btn-sm btn-outline" onclick="if(confirm('Remove logo?')) document.getElementById('currentLogo').src='RR_Logo_2.png'">Remove</button>
+          </div>
+          <input type="file" id="logoUploadEdit" accept="image/*" style="display:none" onchange="updateLogo(this)">
+        </div>
+      </div>
+
+      <div class="form-grid">
+        <div class="field">
+          <label>Primary Color (HEX)</label>
+          <input type="text" value="#E63946" placeholder="#000000">
+          <span class="hint">Used on player cards and exports</span>
+        </div>
+        <div class="field">
+          <label>Secondary Color (HEX)</label>
+          <input type="text" value="#1F4788" placeholder="#000000">
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Jersey/Uniform Color Description</label>
+        <input type="text" value="Red jerseys with white lettering" placeholder="e.g. Navy blue with gold trim">
+      </div>
+    </div>
+
+    <!-- CONTACTS -->
+    <div class="section-pane" id="pane-contacts">
+      <div class="pane-title">Contacts & Admins</div>
+      <div class="pane-sub">Manage who has access to this organization and their roles.</div>
+
+      <div style="background:#fff;border:2px solid var(--border);border-radius:12px;padding:0 20px;margin-bottom:16px">
+        <div class="admin-row">
+          <div class="admin-avatar">SJ</div>
+          <div class="admin-info">
+            <div class="admin-name">Sarah Johnson</div>
+            <div class="admin-sub">sarah@rts.org · Club Director</div>
+          </div>
+          <span class="role-badge role-owner">Owner</span>
+        </div>
+        <div class="admin-row">
+          <div class="admin-avatar" style="background:linear-gradient(135deg,var(--teal),#17a589)">MR</div>
+          <div class="admin-info">
+            <div class="admin-name">Mike Rodriguez</div>
+            <div class="admin-sub">mrodriguez@rts.org · Head Coach 14U</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <select style="padding:5px 8px;border:2px solid var(--border);border-radius:6px;font-family:Georgia,serif;font-size:.8rem">
+              <option>Admin</option>
+              <option>Evaluator</option>
+              <option>Viewer</option>
+            </select>
+            <button class="btn-sm" style="background:#FEE2E2;color:var(--dred);border:none;padding:6px 10px;border-radius:6px;font-family:Georgia,serif;font-size:.78rem;font-weight:700;cursor:pointer">Remove</button>
+          </div>
+        </div>
+        <div class="admin-row">
+          <div class="admin-avatar" style="background:linear-gradient(135deg,var(--red),var(--dred))">KB</div>
+          <div class="admin-info">
+            <div class="admin-name">Karen Bauer</div>
+            <div class="admin-sub">kbauer@rts.org · 12U Coordinator</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <select style="padding:5px 8px;border:2px solid var(--border);border-radius:6px;font-family:Georgia,serif;font-size:.8rem">
+              <option>Admin</option>
+              <option selected>Evaluator</option>
+              <option>Viewer</option>
+            </select>
+            <button class="btn-sm" style="background:#FEE2E2;color:var(--dred);border:none;padding:6px 10px;border-radius:6px;font-family:Georgia,serif;font-size:.78rem;font-weight:700;cursor:pointer">Remove</button>
+          </div>
+        </div>
+      </div>
+
+      <div style="background:#EBF3FB;border:2px dashed var(--blue);border-radius:10px;padding:16px;text-align:center;cursor:pointer" onclick="alert('Add admin modal coming — see organization-details.html')">
+        <span style="color:var(--blue);font-weight:700;font-size:.9rem">+ Invite Another Admin</span>
+      </div>
+    </div>
+
+    <!-- PREFERENCES -->
+    <div class="section-pane" id="pane-preferences">
+      <div class="pane-title">Preferences</div>
+      <div class="pane-sub">Configure default settings for new events created under this organization.</div>
+
+      <div class="form-grid">
+        <div class="field">
+          <label>Default Scoring Scale</label>
+          <select>
+            <option selected>1–10 (Integers Only)</option>
+            <option>1–5</option>
+            <option>1–20</option>
+            <option>Custom</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Score Aggregation Method</label>
+          <select>
+            <option selected>Median (Recommended)</option>
+            <option>Average (Mean)</option>
+            <option>High Score</option>
+            <option>Low Score</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-grid">
+        <div class="field">
+          <label>Subscription Tier</label>
+          <select>
+            <option>Starter – Up to 2 events/year</option>
+            <option selected>Pro – Unlimited events</option>
+            <option>Elite – Multi-sport + Analytics</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Email Notifications</label>
+          <select>
+            <option selected>Enabled – All Events</option>
+            <option>Enabled – Key Actions Only</option>
+            <option>Disabled</option>
+          </select>
+        </div>
+      </div>
+      <hr class="divider">
+      <div class="form-grid full">
+        <div class="field">
+          <label>Notes / Internal Comments</label>
+          <textarea placeholder="Internal notes about this organization (not visible to the organization's admins)..."></textarea>
+          <span class="hint">Only visible to RosterReady staff</span>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /edit-content -->
+</div><!-- /edit-layout -->
+
+<!-- SAVE BAR -->
+<div class="save-bar">
+  <p id="saveStatus">You have unsaved changes</p>
+  <div class="save-bar-actions">
+    <a href="organization-details.html" class="btn-sm btn-outline">Discard Changes</a>
+    <button class="btn-save" onclick="saveChanges()">Save Changes</button>
+  </div>
+</div>
+
+<div class="toast" id="toast">✅ Changes saved successfully!</div>
+
+<script>
+function switchPane(id, el){
+  document.querySelectorAll('.section-pane').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.edit-nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('pane-'+id).classList.add('active');
+  el.classList.add('active');
+}
+
+function updateLogo(input){
+  if(input.files && input.files[0]){
+    const reader = new FileReader();
+    reader.onload = e => document.getElementById('currentLogo').src = e.target.result;
+    reader.readAsDataURL(input.files[0]);
+  }
+}
+
+function saveChanges(){
+  const toast = document.getElementById('toast');
+  toast.classList.add('show');
+  document.getElementById('saveStatus').textContent = 'All changes saved';
+  setTimeout(()=>toast.classList.remove('show'), 3000);
+}
+
+// Mark dirty on any input change
+document.querySelectorAll('input, select, textarea').forEach(el=>{
+  el.addEventListener('change',()=>document.getElementById('saveStatus').textContent='You have unsaved changes');
+});
+</script>
+</body>
+</html>

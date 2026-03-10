@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RosterReady – Add Organization</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --red:#E63946;--dred:#C1121F;--blue:#4A90E2;
+  --teal:#1ABC9C;--dark:#1a1a2e;--mid:#2d3748;
+  --light:#f7f9fc;--border:#e2e8f0;
+  --card:#ffffff;--shadow:0 4px 24px rgba(0,0,0,.08);
+}
+body{font-family:Georgia,'Times New Roman',serif;background:var(--light);color:var(--mid);min-height:100vh}
+
+/* NAV */
+nav{background:#fff;border-bottom:2px solid var(--border);padding:0 32px;display:flex;align-items:center;justify-content:space-between;height:64px;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.06)}
+.nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none}
+.nav-logo img{height:38px;object-fit:contain}
+.nav-logo span{font-size:1.1rem;font-weight:700;letter-spacing:.5px;color:var(--dark)}
+.nav-back{display:flex;align-items:center;gap:6px;color:var(--blue);text-decoration:none;font-size:.9rem;font-family:Georgia,serif;transition:.2s}
+.nav-back:hover{color:var(--dred)}
+
+/* HERO STRIP */
+.page-hero{background:linear-gradient(135deg,var(--dark) 0%,#1F4788 100%);color:#fff;padding:28px 32px;display:flex;align-items:center;gap:20px}
+.page-hero-icon{width:52px;height:52px;background:rgba(255,255,255,.12);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.6rem}
+.page-hero h1{font-size:1.6rem;font-weight:700;margin-bottom:4px}
+.page-hero p{font-size:.9rem;opacity:.8;font-family:Georgia,serif}
+
+/* LAYOUT */
+.layout{display:grid;grid-template-columns:260px 1fr;gap:0;min-height:calc(100vh - 130px)}
+
+/* STEP SIDEBAR */
+.sidebar{background:#fff;border-right:2px solid var(--border);padding:32px 24px}
+.sidebar h3{font-size:.75rem;letter-spacing:1.5px;text-transform:uppercase;color:#94a3b8;margin-bottom:20px}
+.step-list{display:flex;flex-direction:column;gap:4px}
+.step-item{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:10px;cursor:pointer;transition:.2s;position:relative}
+.step-item.active{background:linear-gradient(135deg,#EBF3FB,#F0F7FF);border-left:3px solid var(--blue)}
+.step-item.done{background:#F0FDF4;border-left:3px solid var(--teal)}
+.step-item.inactive{opacity:.5;cursor:default;border-left:3px solid transparent}
+.step-num{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:700;flex-shrink:0}
+.step-item.active .step-num{background:var(--blue);color:#fff}
+.step-item.done .step-num{background:var(--teal);color:#fff}
+.step-item.inactive .step-num{background:var(--border);color:#94a3b8}
+.step-label{font-size:.9rem;font-weight:600;color:var(--mid)}
+.step-item.active .step-label{color:var(--blue)}
+.step-item.done .step-label{color:var(--teal)}
+.step-sub{font-size:.75rem;color:#94a3b8;margin-top:2px}
+
+/* CONTENT */
+.content{padding:40px;max-width:780px}
+.step-panel{display:none}.step-panel.active{display:block}
+
+.section-title{font-size:1.4rem;font-weight:700;color:var(--dark);margin-bottom:6px}
+.section-sub{font-size:.9rem;color:#64748b;margin-bottom:32px;font-family:Georgia,serif}
+
+/* FORM */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px}
+.form-grid.full{grid-template-columns:1fr}
+.form-grid.three{grid-template-columns:1fr 1fr 1fr}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{font-size:.8rem;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--mid)}
+.field label span{color:var(--red);margin-left:2px}
+.field input,.field select,.field textarea{padding:11px 14px;border:2px solid var(--border);border-radius:8px;font-family:Georgia,serif;font-size:.95rem;color:var(--dark);transition:.2s;background:#fff}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--blue);outline:none;box-shadow:0 0 0 3px rgba(74,144,226,.1)}
+.field textarea{resize:vertical;min-height:90px}
+.field .hint{font-size:.78rem;color:#94a3b8}
+
+/* LOGO UPLOAD */
+.logo-upload-area{border:2px dashed var(--border);border-radius:12px;padding:32px;text-align:center;cursor:pointer;transition:.3s;background:#fafbfc}
+.logo-upload-area:hover{border-color:var(--blue);background:#EBF3FB}
+.logo-upload-area.has-image{border-style:solid;border-color:var(--teal)}
+.logo-preview{width:80px;height:80px;border-radius:12px;object-fit:contain;margin:0 auto 12px;display:block;background:#f0f0f0}
+.logo-upload-icon{font-size:2.5rem;margin-bottom:8px}
+.logo-upload-area h4{font-size:.95rem;font-weight:700;color:var(--mid);margin-bottom:4px}
+.logo-upload-area p{font-size:.8rem;color:#94a3b8}
+.logo-upload-area input[type=file]{display:none}
+
+/* SPORT TOGGLE */
+.sport-toggle{display:flex;gap:12px;flex-wrap:wrap}
+.sport-btn{padding:10px 20px;border:2px solid var(--border);border-radius:8px;cursor:pointer;font-family:Georgia,serif;font-size:.9rem;font-weight:600;color:#64748b;background:#fff;transition:.2s;display:flex;align-items:center;gap:8px}
+.sport-btn:hover{border-color:var(--blue);color:var(--blue)}
+.sport-btn.active{border-color:var(--blue);background:var(--blue);color:#fff}
+
+/* AGE LEVELS */
+.age-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.age-chip{border:2px solid var(--border);border-radius:8px;padding:10px;text-align:center;cursor:pointer;font-family:Georgia,serif;font-weight:700;font-size:.9rem;color:#64748b;transition:.2s;background:#fff}
+.age-chip:hover{border-color:var(--blue);color:var(--blue)}
+.age-chip.active{border-color:var(--blue);background:var(--blue);color:#fff}
+
+/* ADMIN CARDS */
+.contact-card{background:var(--light);border:2px solid var(--border);border-radius:12px;padding:20px;margin-bottom:12px;position:relative}
+.contact-card.primary-card{border-color:var(--blue);background:#EBF3FB}
+.contact-badge{position:absolute;top:12px;right:12px;background:var(--blue);color:#fff;font-size:.7rem;font-weight:700;padding:3px 8px;border-radius:20px;letter-spacing:.5px;text-transform:uppercase}
+.contact-badge.admin-badge{background:var(--teal)}
+.contact-card h4{font-size:.95rem;font-weight:700;color:var(--dark);margin-bottom:14px}
+.add-admin-btn{border:2px dashed var(--blue);background:transparent;color:var(--blue);border-radius:10px;padding:14px;width:100%;font-family:Georgia,serif;font-size:.9rem;font-weight:600;cursor:pointer;transition:.2s;display:flex;align-items:center;justify-content:center;gap:8px}
+.add-admin-btn:hover{background:#EBF3FB}
+.remove-contact{position:absolute;top:12px;right:12px;background:none;border:none;color:#94a3b8;cursor:pointer;font-size:1.1rem;padding:4px;transition:.2s}
+.remove-contact:hover{color:var(--red)}
+
+/* REVIEW */
+.review-section{background:#fff;border:2px solid var(--border);border-radius:12px;padding:24px;margin-bottom:16px}
+.review-section h4{font-size:.85rem;letter-spacing:1px;text-transform:uppercase;color:#94a3b8;margin-bottom:16px;font-family:Georgia,serif}
+.review-row{display:flex;justify-content:space-between;align-items:flex-start;padding:8px 0;border-bottom:1px solid var(--border);gap:20px}
+.review-row:last-child{border-bottom:none}
+.review-label{font-size:.85rem;color:#64748b;flex-shrink:0;width:140px}
+.review-value{font-size:.9rem;font-weight:600;color:var(--dark);text-align:right}
+.review-logo{width:48px;height:48px;border-radius:8px;object-fit:contain;background:#f0f0f0}
+.sport-tags{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.sport-tag{background:var(--blue);color:#fff;padding:3px 10px;border-radius:20px;font-size:.78rem;font-weight:600}
+.age-tags{display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end}
+.age-tag{background:var(--light);border:1px solid var(--border);color:var(--mid);padding:2px 8px;border-radius:6px;font-size:.78rem;font-weight:600}
+
+/* BUTTONS */
+.btn-row{display:flex;justify-content:space-between;align-items:center;margin-top:36px;padding-top:24px;border-top:2px solid var(--border)}
+.btn{padding:12px 28px;border-radius:8px;font-family:Georgia,serif;font-size:.95rem;font-weight:700;cursor:pointer;border:none;transition:.2s;display:flex;align-items:center;gap:8px}
+.btn-outline{background:#fff;border:2px solid var(--border);color:var(--mid)}
+.btn-outline:hover{border-color:var(--blue);color:var(--blue)}
+.btn-primary{background:var(--blue);color:#fff}
+.btn-primary:hover{background:#3a7bd5;transform:translateY(-1px)}
+.btn-success{background:var(--teal);color:#fff}
+.btn-success:hover{background:#17a589}
+
+/* SUCCESS */
+.success-screen{text-align:center;padding:60px 40px}
+.success-icon{font-size:4rem;margin-bottom:20px}
+.success-screen h2{font-size:1.8rem;font-weight:700;color:var(--dark);margin-bottom:12px}
+.success-screen p{color:#64748b;font-size:1rem;margin-bottom:32px;line-height:1.6}
+.success-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+
+/* PROGRESS BAR */
+.progress-bar{height:4px;background:var(--border);margin:0}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--blue),var(--teal));transition:.4s}
+
+@media(max-width:768px){
+  .layout{grid-template-columns:1fr}
+  .sidebar{display:none}
+  .content{padding:24px}
+  .form-grid{grid-template-columns:1fr}
+  .form-grid.three{grid-template-columns:1fr 1fr}
+  .age-grid{grid-template-columns:repeat(4,1fr)}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="admin.html" class="nav-logo">
+    <img src="RR_Logo_2.png" alt="RosterReady">
+    <span>RosterReady</span>
+  </a>
+  <a href="admin.html" class="nav-back">← Back to Dashboard</a>
+</nav>
+
+<div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:20%"></div></div>
+
+<div class="page-hero">
+  <div class="page-hero-icon">🏢</div>
+  <div>
+    <h1>Add New Organization</h1>
+    <p>Set up a client organization — softball or baseball club — to start managing their tryouts.</p>
+  </div>
+</div>
+
+<div class="layout">
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <h3>Setup Steps</h3>
+    <div class="step-list">
+      <div class="step-item active" id="sStep1">
+        <div class="step-num">1</div>
+        <div><div class="step-label">Organization Info</div><div class="step-sub">Name, sport, logo</div></div>
+      </div>
+      <div class="step-item inactive" id="sStep2">
+        <div class="step-num">2</div>
+        <div><div class="step-label">Contact & Location</div><div class="step-sub">Address, billing</div></div>
+      </div>
+      <div class="step-item inactive" id="sStep3">
+        <div class="step-num">3</div>
+        <div><div class="step-label">Main Contact</div><div class="step-sub">Primary admin</div></div>
+      </div>
+      <div class="step-item inactive" id="sStep4">
+        <div class="step-num">4</div>
+        <div><div class="step-label">Additional Admins</div><div class="step-sub">Tryout managers</div></div>
+      </div>
+      <div class="step-item inactive" id="sStep5">
+        <div class="step-num">5</div>
+        <div><div class="step-label">Review & Create</div><div class="step-sub">Confirm details</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content">
+
+    <!-- STEP 1: ORG INFO -->
+    <div class="step-panel active" id="step1">
+      <div class="section-title">Organization Information</div>
+      <div class="section-sub">Start with the basics — what's the organization and what sport do they run?</div>
+
+      <div class="form-grid full" style="margin-bottom:18px">
+        <div class="field">
+          <label>Organization Name <span>*</span></label>
+          <input type="text" id="orgName" placeholder="e.g. Rosemount Thunder Softball" oninput="syncReview()">
+        </div>
+      </div>
+
+      <div class="form-grid" style="margin-bottom:24px">
+        <div class="field">
+          <label>Short Name / Abbreviation</label>
+          <input type="text" id="orgShort" placeholder="e.g. Thunder, RTS">
+          <span class="hint">Used in reports and QR codes</span>
+        </div>
+        <div class="field">
+          <label>Organization Website</label>
+          <input type="url" id="orgWeb" placeholder="https://...">
+        </div>
+      </div>
+
+      <!-- Sport Toggle -->
+      <div class="field" style="margin-bottom:24px">
+        <label>Sport(s) Offered <span>*</span></label>
+        <div class="sport-toggle" id="sportToggle">
+          <button class="sport-btn" onclick="toggleSport(this,'softball')">🥎 Softball</button>
+          <button class="sport-btn" onclick="toggleSport(this,'baseball')">⚾ Baseball</button>
+        </div>
+      </div>
+
+      <!-- Age Levels -->
+      <div class="field" style="margin-bottom:24px">
+        <label>Age Levels Offered <span>*</span></label>
+        <div class="age-grid" id="ageGrid">
+          <div class="age-chip" onclick="toggleAge(this,'8U')">8U</div>
+          <div class="age-chip" onclick="toggleAge(this,'10U')">10U</div>
+          <div class="age-chip" onclick="toggleAge(this,'12U')">12U</div>
+          <div class="age-chip" onclick="toggleAge(this,'14U')">14U</div>
+          <div class="age-chip" onclick="toggleAge(this,'16U')">16U</div>
+          <div class="age-chip" onclick="toggleAge(this,'18U')">18U</div>
+          <div class="age-chip" onclick="toggleAge(this,'HS')">HS Varsity</div>
+          <div class="age-chip" onclick="toggleAge(this,'Open')">Open</div>
+        </div>
+      </div>
+
+      <!-- Logo Upload -->
+      <div class="field" style="margin-bottom:10px">
+        <label>Organization Logo</label>
+        <div class="logo-upload-area" id="logoUploadArea" onclick="document.getElementById('logoInput').click()">
+          <img src="" alt="" class="logo-preview" id="logoPreview" style="display:none">
+          <div id="logoPlaceholder">
+            <div class="logo-upload-icon">🏟️</div>
+            <h4>Upload Organization Logo</h4>
+            <p>PNG, JPG or SVG · Recommended 300×300px</p>
+          </div>
+          <input type="file" id="logoInput" accept="image/*" onchange="previewLogo(this)">
+        </div>
+      </div>
+
+      <div class="field" style="margin-bottom:10px">
+        <label>Program Description</label>
+        <textarea id="orgDesc" placeholder="Brief description of the organization's program, history, goals..."></textarea>
+      </div>
+
+      <div class="btn-row">
+        <div></div>
+        <button class="btn btn-primary" onclick="goStep(2)">Continue → Contact Info</button>
+      </div>
+    </div>
+
+    <!-- STEP 2: LOCATION & BILLING -->
+    <div class="step-panel" id="step2">
+      <div class="section-title">Contact & Location</div>
+      <div class="section-sub">Where is the organization based and where do they hold tryouts?</div>
+
+      <div style="background:#EBF3FB;border:2px solid var(--blue);border-radius:10px;padding:14px 18px;margin-bottom:24px;font-size:.85rem;color:var(--blue);font-weight:600">
+        📍 This address is used for billing and as the default venue for tryouts. Venue can be changed per event.
+      </div>
+
+      <div class="form-grid full">
+        <div class="field">
+          <label>Street Address <span>*</span></label>
+          <input type="text" id="addrStreet" placeholder="1234 Diamond Drive">
+        </div>
+      </div>
+      <div class="form-grid three" style="margin-bottom:18px">
+        <div class="field">
+          <label>City <span>*</span></label>
+          <input type="text" id="addrCity" placeholder="Rosemount">
+        </div>
+        <div class="field">
+          <label>State <span>*</span></label>
+          <select id="addrState">
+            <option value="">-- State --</option>
+            <option>AL</option><option>AK</option><option>AZ</option><option>AR</option>
+            <option>CA</option><option>CO</option><option>CT</option><option>DE</option>
+            <option>FL</option><option>GA</option><option>HI</option><option>ID</option>
+            <option>IL</option><option>IN</option><option>IA</option><option>KS</option>
+            <option>KY</option><option>LA</option><option>ME</option><option>MD</option>
+            <option>MA</option><option>MI</option><option selected>MN</option><option>MS</option>
+            <option>MO</option><option>MT</option><option>NE</option><option>NV</option>
+            <option>NH</option><option>NJ</option><option>NM</option><option>NY</option>
+            <option>NC</option><option>ND</option><option>OH</option><option>OK</option>
+            <option>OR</option><option>PA</option><option>RI</option><option>SC</option>
+            <option>SD</option><option>TN</option><option>TX</option><option>UT</option>
+            <option>VT</option><option>VA</option><option>WA</option><option>WV</option>
+            <option>WI</option><option>WY</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>ZIP Code <span>*</span></label>
+          <input type="text" id="addrZip" placeholder="55068" maxlength="10">
+        </div>
+      </div>
+
+      <div class="form-grid" style="margin-bottom:24px">
+        <div class="field">
+          <label>Primary Venue Name</label>
+          <input type="text" id="venueName" placeholder="e.g. Rosemount Athletic Complex">
+          <span class="hint">Default tryout facility</span>
+        </div>
+        <div class="field">
+          <label>General Phone</label>
+          <input type="tel" id="orgPhone" placeholder="(651) 555-0100">
+        </div>
+      </div>
+
+      <div class="form-grid" style="margin-bottom:10px">
+        <div class="field">
+          <label>General Email</label>
+          <input type="email" id="orgEmail" placeholder="info@organization.org">
+        </div>
+        <div class="field">
+          <label>Subscription Tier</label>
+          <select id="orgTier">
+            <option value="starter">Starter – Up to 2 events/year</option>
+            <option value="pro" selected>Pro – Unlimited events</option>
+            <option value="elite">Elite – Multi-sport + Analytics</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-outline" onclick="goStep(1)">← Back</button>
+        <button class="btn btn-primary" onclick="goStep(3)">Continue → Main Contact</button>
+      </div>
+    </div>
+
+    <!-- STEP 3: MAIN CONTACT -->
+    <div class="step-panel" id="step3">
+      <div class="section-title">Main Contact (Primary Admin)</div>
+      <div class="section-sub">This person is the primary point of contact and will have full admin access to this organization.</div>
+
+      <div class="contact-card primary-card">
+        <div class="contact-badge">Primary Admin</div>
+        <div class="form-grid" style="margin-bottom:18px">
+          <div class="field">
+            <label>First Name <span>*</span></label>
+            <input type="text" id="mc_first" placeholder="Jane">
+          </div>
+          <div class="field">
+            <label>Last Name <span>*</span></label>
+            <input type="text" id="mc_last" placeholder="Smith">
+          </div>
+        </div>
+        <div class="form-grid" style="margin-bottom:18px">
+          <div class="field">
+            <label>Email Address <span>*</span></label>
+            <input type="email" id="mc_email" placeholder="jane@organization.org">
+            <span class="hint">Login credentials will be sent here</span>
+          </div>
+          <div class="field">
+            <label>Mobile Phone</label>
+            <input type="tel" id="mc_phone" placeholder="(651) 555-0101">
+          </div>
+        </div>
+        <div class="form-grid" style="margin-bottom:10px">
+          <div class="field">
+            <label>Title / Role</label>
+            <input type="text" id="mc_title" placeholder="e.g. Club Director, Head Coach">
+          </div>
+          <div class="field">
+            <label>Access Level</label>
+            <select id="mc_access">
+              <option value="owner">Owner – Full Control</option>
+              <option value="admin">Admin – Manage Events & Staff</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div style="background:#F0FDF4;border:2px solid var(--teal);border-radius:10px;padding:14px 18px;font-size:.85rem;color:#15803d;margin-top:8px">
+        ✉️ An invitation email with login instructions will be sent to the main contact when the organization is created.
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-outline" onclick="goStep(2)">← Back</button>
+        <button class="btn btn-primary" onclick="goStep(4)">Continue → Additional Admins</button>
+      </div>
+    </div>
+
+    <!-- STEP 4: ADDITIONAL ADMINS -->
+    <div class="step-panel" id="step4">
+      <div class="section-title">Additional Admins</div>
+      <div class="section-sub">Add coaches or coordinators who can manage tryouts for this organization. You can also add more later.</div>
+
+      <div id="adminList"></div>
+
+      <button class="add-admin-btn" onclick="addAdmin()">
+        + Add Another Admin
+      </button>
+
+      <div style="background:var(--light);border:2px solid var(--border);border-radius:10px;padding:14px 18px;margin-top:20px;font-size:.85rem;color:#64748b">
+        <strong>Roles explained:</strong><br>
+        <strong>Admin</strong> – Can create and manage events, assign staff, view all scores.<br>
+        <strong>Evaluator</strong> – Can only record scores during events they're assigned to.<br>
+        <strong>Viewer</strong> – Read-only access to results and reports.
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-outline" onclick="goStep(3)">← Back</button>
+        <button class="btn btn-primary" onclick="goStep(5)">Continue → Review</button>
+      </div>
+    </div>
+
+    <!-- STEP 5: REVIEW -->
+    <div class="step-panel" id="step5">
+      <div class="section-title">Review & Create Organization</div>
+      <div class="section-sub">Double-check everything before creating the organization.</div>
+
+      <!-- Org Overview -->
+      <div class="review-section">
+        <h4>Organization</h4>
+        <div class="review-row">
+          <span class="review-label">Logo</span>
+          <img src="RR_Logo_2.png" id="reviewLogo" class="review-logo" alt="Logo">
+        </div>
+        <div class="review-row">
+          <span class="review-label">Name</span>
+          <span class="review-value" id="rOrgName">—</span>
+        </div>
+        <div class="review-row">
+          <span class="review-label">Sports</span>
+          <div class="sport-tags" id="rSports"></div>
+        </div>
+        <div class="review-row">
+          <span class="review-label">Age Levels</span>
+          <div class="age-tags" id="rAges"></div>
+        </div>
+        <div class="review-row">
+          <span class="review-label">Subscription</span>
+          <span class="review-value" id="rTier">—</span>
+        </div>
+      </div>
+
+      <!-- Location -->
+      <div class="review-section">
+        <h4>Location & Contact</h4>
+        <div class="review-row">
+          <span class="review-label">Address</span>
+          <span class="review-value" id="rAddr">—</span>
+        </div>
+        <div class="review-row">
+          <span class="review-label">Primary Venue</span>
+          <span class="review-value" id="rVenue">—</span>
+        </div>
+        <div class="review-row">
+          <span class="review-label">Email</span>
+          <span class="review-value" id="rEmail">—</span>
+        </div>
+        <div class="review-row">
+          <span class="review-label">Phone</span>
+          <span class="review-value" id="rPhone">—</span>
+        </div>
+      </div>
+
+      <!-- Main Contact -->
+      <div class="review-section">
+        <h4>Main Contact</h4>
+        <div class="review-row">
+          <span class="review-label">Name</span>
+          <span class="review-value" id="rMcName">—</span>
+        </div>
+        <div class="review-row">
+          <span class="review-label">Email</span>
+          <span class="review-value" id="rMcEmail">—</span>
+        </div>
+        <div class="review-row">
+          <span class="review-label">Title</span>
+          <span class="review-value" id="rMcTitle">—</span>
+        </div>
+      </div>
+
+      <!-- Admins -->
+      <div class="review-section" id="rAdminsSection" style="display:none">
+        <h4>Additional Admins</h4>
+        <div id="rAdminsList"></div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-outline" onclick="goStep(4)">← Back</button>
+        <button class="btn btn-success" onclick="createOrg()">🏢 Create Organization</button>
+      </div>
+    </div>
+
+    <!-- SUCCESS -->
+    <div class="step-panel" id="stepSuccess">
+      <div class="success-screen">
+        <div class="success-icon">🎉</div>
+        <h2 id="successTitle">Organization Created!</h2>
+        <p id="successMsg">The organization has been set up and invitation emails have been sent to the admin contacts.</p>
+        <div class="success-actions">
+          <a href="organization-details.html" class="btn btn-primary">View Organization →</a>
+          <a href="event-create.html" class="btn btn-outline">Create First Event</a>
+          <a href="admin.html" class="btn btn-outline">Back to Dashboard</a>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /layout -->
+
+<script>
+let currentStep = 1;
+const totalSteps = 5;
+let selectedSports = [];
+let selectedAges = [];
+let adminCount = 0;
+
+function goStep(n){
+  if(n===5) buildReview();
+  document.querySelectorAll('.step-panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('step'+n).classList.add('active');
+  
+  // Update sidebar
+  for(let i=1;i<=totalSteps;i++){
+    const el = document.getElementById('sStep'+i);
+    if(!el) continue;
+    el.className = 'step-item ' + (i<n?'done': i===n?'active':'inactive');
+  }
+  
+  document.getElementById('progressFill').style.width = ((n/totalSteps)*100)+'%';
+  currentStep = n;
+  window.scrollTo(0,0);
+}
+
+function toggleSport(btn, sport){
+  btn.classList.toggle('active');
+  if(selectedSports.includes(sport)){
+    selectedSports = selectedSports.filter(s=>s!==sport);
+  } else {
+    selectedSports.push(sport);
+  }
+}
+
+function toggleAge(el, age){
+  el.classList.toggle('active');
+  if(selectedAges.includes(age)){
+    selectedAges = selectedAges.filter(a=>a!==age);
+  } else {
+    selectedAges.push(age);
+  }
+}
+
+function previewLogo(input){
+  if(input.files && input.files[0]){
+    const reader = new FileReader();
+    reader.onload = e=>{
+      const prev = document.getElementById('logoPreview');
+      prev.src = e.target.result;
+      prev.style.display = 'block';
+      document.getElementById('logoPlaceholder').style.display = 'none';
+      document.getElementById('logoUploadArea').classList.add('has-image');
+      document.getElementById('reviewLogo').src = e.target.result;
+    };
+    reader.readAsDataURL(input.files[0]);
+  }
+}
+
+function addAdmin(){
+  adminCount++;
+  const id = 'admin_'+adminCount;
+  const div = document.createElement('div');
+  div.className = 'contact-card';
+  div.id = id;
+  div.innerHTML = `
+    <button class="remove-contact" onclick="removeAdmin('${id}')">✕</button>
+    <div class="contact-badge admin-badge">Admin ${adminCount}</div>
+    <div class="form-grid" style="margin-bottom:14px">
+      <div class="field"><label>First Name</label><input type="text" placeholder="First" data-field="first_${id}"></div>
+      <div class="field"><label>Last Name</label><input type="text" placeholder="Last" data-field="last_${id}"></div>
+    </div>
+    <div class="form-grid" style="margin-bottom:14px">
+      <div class="field"><label>Email</label><input type="email" placeholder="email@org.com" data-field="email_${id}"></div>
+      <div class="field"><label>Title / Role</label><input type="text" placeholder="e.g. Assistant Coach" data-field="title_${id}"></div>
+    </div>
+    <div class="field">
+      <label>Access Level</label>
+      <select data-field="access_${id}">
+        <option value="admin">Admin – Manage Events & Staff</option>
+        <option value="evaluator">Evaluator – Score During Events</option>
+        <option value="viewer">Viewer – Read-Only Access</option>
+      </select>
+    </div>`;
+  document.getElementById('adminList').appendChild(div);
+}
+
+function removeAdmin(id){
+  document.getElementById(id).remove();
+}
+
+function buildReview(){
+  document.getElementById('rOrgName').textContent = document.getElementById('orgName').value || '—';
+  
+  const sportsEl = document.getElementById('rSports');
+  sportsEl.innerHTML = selectedSports.map(s=>`<span class="sport-tag">${s}</span>`).join('') || '<span style="color:#94a3b8">None selected</span>';
+  
+  const agesEl = document.getElementById('rAges');
+  agesEl.innerHTML = selectedAges.map(a=>`<span class="age-tag">${a}</span>`).join('') || '<span style="color:#94a3b8">None selected</span>';
+  
+  const city = document.getElementById('addrCity').value;
+  const state = document.getElementById('addrState').value;
+  const zip = document.getElementById('addrZip').value;
+  const street = document.getElementById('addrStreet').value;
+  document.getElementById('rAddr').textContent = [street, city, state, zip].filter(Boolean).join(', ') || '—';
+  document.getElementById('rVenue').textContent = document.getElementById('venueName').value || '—';
+  document.getElementById('rEmail').textContent = document.getElementById('orgEmail').value || '—';
+  document.getElementById('rPhone').textContent = document.getElementById('orgPhone').value || '—';
+  
+  const tierMap = {starter:'Starter',pro:'Pro',elite:'Elite'};
+  document.getElementById('rTier').textContent = tierMap[document.getElementById('orgTier').value] || '—';
+  
+  const f = document.getElementById('mc_first').value;
+  const l = document.getElementById('mc_last').value;
+  document.getElementById('rMcName').textContent = [f,l].filter(Boolean).join(' ') || '—';
+  document.getElementById('rMcEmail').textContent = document.getElementById('mc_email').value || '—';
+  document.getElementById('rMcTitle').textContent = document.getElementById('mc_title').value || '—';
+  
+  // Additional admins
+  const admins = document.querySelectorAll('[id^="admin_"]');
+  if(admins.length > 0){
+    const sec = document.getElementById('rAdminsSection');
+    sec.style.display = 'block';
+    const list = document.getElementById('rAdminsList');
+    list.innerHTML = '';
+    admins.forEach((a,i)=>{
+      const inputs = a.querySelectorAll('input, select');
+      const vals = {};
+      inputs.forEach(inp=>{ if(inp.dataset.field) vals[inp.dataset.field.split('_')[0]] = inp.value; });
+      const firstName = a.querySelector('[data-field^="first"]')?.value || '';
+      const lastName = a.querySelector('[data-field^="last"]')?.value || '';
+      const emailVal = a.querySelector('[data-field^="email"]')?.value || '';
+      const accessVal = a.querySelector('select')?.value || '';
+      list.innerHTML += `
+        <div class="review-row">
+          <span class="review-label">Admin ${i+1}</span>
+          <span class="review-value">${[firstName,lastName].filter(Boolean).join(' ')||'—'}<br>
+          <small style="color:#64748b;font-weight:400">${emailVal}</small><br>
+          <small style="color:var(--blue);font-weight:600">${accessVal}</small></span>
+        </div>`;
+    });
+  }
+}
+
+function createOrg(){
+  const name = document.getElementById('orgName').value || 'New Organization';
+  document.getElementById('successTitle').textContent = name + ' Created!';
+  document.getElementById('successMsg').textContent = `${name} has been added to your dashboard. Invitation emails have been sent to all admin contacts.`;
+  document.querySelectorAll('.step-panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('stepSuccess').classList.add('active');
+  document.getElementById('progressFill').style.width = '100%';
+  for(let i=1;i<=5;i++){
+    const el = document.getElementById('sStep'+i);
+    if(el) el.className = 'step-item done';
+  }
+}
+
+function syncReview(){}
+</script>
+</body>
+</html>
