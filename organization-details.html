@@ -147,7 +147,7 @@ nav{background:#fff;border-bottom:2px solid var(--border);padding:0 32px;display
 
 <nav>
   <a href="admin.html" class="nav-logo">
-    <img src="RR_Logo_2.png" alt="RosterReady">
+    <img src="RR_Logo.png" alt="RosterReady">
     <span>RosterReady</span>
   </a>
   <div class="nav-actions">
@@ -160,7 +160,7 @@ nav{background:#fff;border-bottom:2px solid var(--border);padding:0 32px;display
 <!-- ORG HERO -->
 <div class="org-hero">
   <div class="org-logo-frame">
-    <img src="RR_Logo_2.png" alt="Org Logo" id="orgLogoHero">
+    <img src="RR_Logo.png" alt="Org Logo" id="orgLogoHero">
   </div>
   <div class="org-hero-info">
     <div class="org-name" id="heroOrgName">Rosemount Thunder Softball</div>
@@ -248,9 +248,9 @@ nav{background:#fff;border-bottom:2px solid var(--border);padding:0 32px;display
       <div class="card">
         <div class="card-title">Contact & Location</div>
         <div class="info-row"><span class="info-key">Main Contact</span><span class="info-val">Sarah Johnson</span></div>
-        <div class="info-row"><span class="info-key">Contact Email</span><span class="info-val">sarah@rts.org</span></div>
+        <div class="info-row"><span class="info-key">Contact Email</span><span class="info-val"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="d6a5b7a4b7be96a4a2a5f8b9a4b1">[email&#160;protected]</a></span></div>
         <div class="info-row"><span class="info-key">Contact Phone</span><span class="info-val">(651) 555-0142</span></div>
-        <div class="info-row"><span class="info-key">General Email</span><span class="info-val">info@rts.org</span></div>
+        <div class="info-row"><span class="info-key">General Email</span><span class="info-val"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="1f767179705f6d6b6c31706d78">[email&#160;protected]</a></span></div>
         <div class="info-row"><span class="info-key">Address</span><span class="info-val">1200 Diamond Dr, Rosemount, MN 55068</span></div>
         <div class="info-row"><span class="info-key">Primary Venue</span><span class="info-val">Rosemount Athletic Complex</span></div>
         <div class="info-row"><span class="info-key">Subscription</span><span class="info-val">⭐ Pro Tier</span></div>
@@ -376,7 +376,7 @@ nav{background:#fff;border-bottom:2px solid var(--border);padding:0 32px;display
         <div class="admin-avatar">SJ</div>
         <div class="admin-info">
           <div class="admin-name">Sarah Johnson</div>
-          <div class="admin-sub">sarah@rts.org · (651) 555-0142 · Club Director</div>
+          <div class="admin-sub"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="403321322128003234336e2f3227">[email&#160;protected]</a> · (651) 555-0142 · Club Director</div>
         </div>
         <span class="role-badge role-owner">Owner</span>
       </div>
@@ -384,7 +384,7 @@ nav{background:#fff;border-bottom:2px solid var(--border);padding:0 32px;display
         <div class="admin-avatar" style="background:linear-gradient(135deg,var(--teal),#17a589)">MR</div>
         <div class="admin-info">
           <div class="admin-name">Mike Rodriguez</div>
-          <div class="admin-sub">mrodriguez@rts.org · (651) 555-0188 · Head Coach 14U</div>
+          <div class="admin-sub"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="6e031c010a1c07091b0b142e1c1a1d40011c09">[email&#160;protected]</a> · (651) 555-0188 · Head Coach 14U</div>
         </div>
         <div style="display:flex;align-items:center;gap:8px">
           <span class="role-badge role-admin">Admin</span>
@@ -395,7 +395,7 @@ nav{background:#fff;border-bottom:2px solid var(--border);padding:0 32px;display
         <div class="admin-avatar" style="background:linear-gradient(135deg,var(--red),var(--dred))">KB</div>
         <div class="admin-info">
           <div class="admin-name">Karen Bauer</div>
-          <div class="admin-sub">kbauer@rts.org · (651) 555-0177 · 12U Coordinator</div>
+          <div class="admin-sub"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="92f9f0f3e7f7e0d2e0e6e1bcfde0f5">[email&#160;protected]</a> · (651) 555-0177 · 12U Coordinator</div>
         </div>
         <div style="display:flex;align-items:center;gap:8px">
           <span class="role-badge role-evaluator">Evaluator</span>
@@ -518,23 +518,6 @@ nav{background:#fff;border-bottom:2px solid var(--border);padding:0 32px;display
   </div>
 </div>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 function switchTab(id, el){
-  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-  document.getElementById('tab-'+id).classList.add('active');
-  el.classList.add('active');
-}
-function switchTabByName(id){
-  const tabs = document.querySelectorAll('.tab');
-  const panels = document.querySelectorAll('.tab-panel');
-  panels.forEach(p=>p.classList.remove('active'));
-  tabs.forEach(t=>t.classList.remove('active'));
-  const target = document.getElementById('tab-'+id);
-  if(target) target.classList.add('active');
-  // Find the tab
-  tabs.forEach(t=>{ if(t.getAttribute('onclick').includes("'"+id+"'")) t.classList.add('active'); });
-}
-</script>
-</body>
-</html>
+  document.querySelectorAll('.tab-panel').forEa

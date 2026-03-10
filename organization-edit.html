@@ -112,7 +112,7 @@ nav{background:#fff;border-bottom:2px solid var(--border);padding:0 32px;display
 
 <nav>
   <a href="admin.html" class="nav-logo">
-    <img src="RR_Logo_2.png" alt="RosterReady">
+    <img src="RR_Logo.png" alt="RosterReady">
     <span>RosterReady</span>
   </a>
   <div class="nav-actions">
@@ -273,14 +273,14 @@ nav{background:#fff;border-bottom:2px solid var(--border);padding:0 32px;display
 
       <div class="logo-row">
         <div class="logo-current">
-          <img src="RR_Logo_2.png" id="currentLogo" alt="Current Logo">
+          <img src="RR_Logo.png" id="currentLogo" alt="Current Logo">
         </div>
         <div class="logo-actions">
           <h4>Current Logo</h4>
           <p>PNG, JPG, or SVG · Max 5MB · Recommended 300×300px</p>
           <div class="logo-btn-row">
             <button class="btn-sm btn-primary" onclick="document.getElementById('logoUploadEdit').click()">Upload New Logo</button>
-            <button class="btn-sm btn-outline" onclick="if(confirm('Remove logo?')) document.getElementById('currentLogo').src='RR_Logo_2.png'">Remove</button>
+            <button class="btn-sm btn-outline" onclick="if(confirm('Remove logo?')) document.getElementById('currentLogo').src='RR_Logo.png'">Remove</button>
           </div>
           <input type="file" id="logoUploadEdit" accept="image/*" style="display:none" onchange="updateLogo(this)">
         </div>
@@ -314,7 +314,7 @@ nav{background:#fff;border-bottom:2px solid var(--border);padding:0 32px;display
           <div class="admin-avatar">SJ</div>
           <div class="admin-info">
             <div class="admin-name">Sarah Johnson</div>
-            <div class="admin-sub">sarah@rts.org · Club Director</div>
+            <div class="admin-sub"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="0e7d6f7c6f664e7c7a7d20617c69">[email&#160;protected]</a> · Club Director</div>
           </div>
           <span class="role-badge role-owner">Owner</span>
         </div>
@@ -322,7 +322,7 @@ nav{background:#fff;border-bottom:2px solid var(--border);padding:0 32px;display
           <div class="admin-avatar" style="background:linear-gradient(135deg,var(--teal),#17a589)">MR</div>
           <div class="admin-info">
             <div class="admin-name">Mike Rodriguez</div>
-            <div class="admin-sub">mrodriguez@rts.org · Head Coach 14U</div>
+            <div class="admin-sub"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="660b140902140f0113031c2614121548091401">[email&#160;protected]</a> · Head Coach 14U</div>
           </div>
           <div style="display:flex;align-items:center;gap:8px">
             <select style="padding:5px 8px;border:2px solid var(--border);border-radius:6px;font-family:Georgia,serif;font-size:.8rem">
@@ -337,7 +337,7 @@ nav{background:#fff;border-bottom:2px solid var(--border);padding:0 32px;display
           <div class="admin-avatar" style="background:linear-gradient(135deg,var(--red),var(--dred))">KB</div>
           <div class="admin-info">
             <div class="admin-name">Karen Bauer</div>
-            <div class="admin-sub">kbauer@rts.org · 12U Coordinator</div>
+            <div class="admin-sub"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="472c25263222350735333469283520">[email&#160;protected]</a> · 12U Coordinator</div>
           </div>
           <div style="display:flex;align-items:center;gap:8px">
             <select style="padding:5px 8px;border:2px solid var(--border);border-radius:6px;font-family:Georgia,serif;font-size:.8rem">
@@ -422,7 +422,7 @@ nav{background:#fff;border-bottom:2px solid var(--border);padding:0 32px;display
 
 <div class="toast" id="toast">✅ Changes saved successfully!</div>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 function switchPane(id, el){
   document.querySelectorAll('.section-pane').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.edit-nav-item').forEach(n=>n.classList.remove('active'));
@@ -438,17 +438,4 @@ function updateLogo(input){
   }
 }
 
-function saveChanges(){
-  const toast = document.getElementById('toast');
-  toast.classList.add('show');
-  document.getElementById('saveStatus').textContent = 'All changes saved';
-  setTimeout(()=>toast.classList.remove('show'), 3000);
-}
-
-// Mark dirty on any input change
-document.querySelectorAll('input, select, textarea').forEach(el=>{
-  el.addEventListener('change',()=>document.getElementById('saveStatus').textContent='You have unsaved changes');
-});
-</script>
-</body>
-</html>
+function saveChanges()
